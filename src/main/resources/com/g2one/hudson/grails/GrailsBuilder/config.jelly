@@ -1,0 +1,41 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <!--
+      This jelly script is used for per-project configuration.
+
+      See global.jelly for a general discussion about jelly script.
+    -->
+
+    <f:entry title="Grails Installation"
+            description="Select a Grails installation to use">
+        <select class="setting-input" name="grails.name">
+            <option>(Default)</option>
+            <j:forEach var="inst" items="${descriptor.installations}">
+                <f:option selected="${inst.name==instance.grails.name}">${inst.name}</f:option>
+            </j:forEach>
+        </select>
+    </f:entry>
+    <f:section title="Grails Targets">
+        <f:entry title="Run upgrade">
+            <f:checkbox name="grails.runUpgrade" checked="${instance.runUpgrade}"/>
+        </f:entry>
+        <f:entry title="Run clean">
+            <f:checkbox name="grails.runClean" checked="${instance.runClean}"/>
+        </f:entry>
+        <f:entry title="Run test-app">
+            <f:checkbox name="grails.runTestApp" checked="${instance.runTestApp}"/>
+        </f:entry>
+        <f:entry title="Run war">
+            <f:checkbox name="grails.runWar" checked="${instance.runWar}"/>
+        </f:entry>
+    </f:section>
+    <f:entry title="Targets"
+             description="Specify additional target(s) to run separated by spaces (optional)">
+        <f:textbox name="grails.targets" value="${instance.targets}"/>
+    </f:entry>
+
+    <f:entry title="grails.work.dir"
+             description="Specify a value for the grails.work.dir system property (optional)">
+        <f:textbox name="grails.grailsWorkDir" value="${instance.grailsWorkDir}"/>
+    </f:entry>
+</j:jelly>
