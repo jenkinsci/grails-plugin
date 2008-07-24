@@ -4,7 +4,7 @@
   <groupId>g2one</groupId>
   <artifactId>hudson-grails</artifactId>
   <packaging>hpi</packaging>
-  <version>0.2</version>
+  <version>0.3</version>
   
   <dependencies>
     <!--
