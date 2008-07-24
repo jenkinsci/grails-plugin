@@ -5,7 +5,7 @@
   <artifactId>hudson-grails</artifactId>
   <packaging>hpi</packaging>
   <version>0.3-SNAPSHOT</version>
-  
+  <name>hudson-grails</name>
   <scm>
     <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.3</connection>
     <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.3</developerConnection>
