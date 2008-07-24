@@ -6,6 +6,12 @@
   <packaging>hpi</packaging>
   <version>0.3</version>
   
+  <scm>
+    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.3</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.3</developerConnection>
+    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/git/tags/grails-0.3</url>
+  </scm>
+  
   <dependencies>
     <!--
       Replace 1.153 with any version of Hudson that you'd like to develop against.
