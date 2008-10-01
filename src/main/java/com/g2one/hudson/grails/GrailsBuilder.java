@@ -1,5 +1,8 @@
 package com.g2one.hudson.grails;
 
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.UnflaggedOption;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.model.Build;
@@ -16,10 +19,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class GrailsBuilder extends Builder {
 
@@ -109,19 +109,7 @@ public class GrailsBuilder extends Builder {
 
     public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         Project proj = build.getProject();
-
-        List<String> targetsToRun = new ArrayList<String>();
-        if (runUpgrade) targetsToRun.add("upgrade");
-        if (runClean) targetsToRun.add("clean");
-        if (runTestApp) targetsToRun.add("test-app");
-        if (runWar) targetsToRun.add("war");
-        String[] requestedTargets = targets.split(" ");
-        for (String target : requestedTargets) {
-            if (!"".equals(target.trim())) {
-                targetsToRun.add(target);
-            }
-        }
-
+        Map<String, List<String>> targetsToRun = getTargetsToRun();
         if (targetsToRun.size() > 0) {
             String execName;
             if (launcher.isUnix()) {
@@ -137,7 +125,9 @@ public class GrailsBuilder extends Builder {
                 env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
             }
 
-            for (String target : targetsToRun) {
+            Set<Map.Entry<String, List<String>>> targetEntrySet = targetsToRun.entrySet();
+            for (Map.Entry<String, List<String>> targetEntry : targetEntrySet) {
+                String target = targetEntry.getKey();
                 ArgumentListBuilder args = new ArgumentListBuilder();
 
                 if (grailsInstallation == null) {
@@ -162,12 +152,13 @@ public class GrailsBuilder extends Builder {
                     args.addKeyValuePairs("-D", sytemProperties);
                 }
 
-
                 args.add(target);
-                if ("upgrade".equals(target)) {
-                    args.add("-force");
+                List<String> targetArgs = targetEntry.getValue();
+                if (targetArgs != null && targetArgs.size() > 0) {
+                    for (String targetArg : targetArgs) {
+                        args.add(targetArg);
+                    }
                 }
-
 
                 if (!launcher.isUnix()) {
                     args.prepend("cmd.exe", "/C");
@@ -188,6 +179,42 @@ public class GrailsBuilder extends Builder {
             return false;
         }
         return true;
+    }
+
+    protected Map<String, List<String>> getTargetsToRun() {
+        Map<String, List<String>> targetsToRun = new LinkedHashMap<String, List<String>>();
+        if (runUpgrade) {
+            List<String> args = new ArrayList<String>();
+            args.add("-force");
+            targetsToRun.put("upgrade", args);
+        }
+        if (runClean) targetsToRun.put("clean", null);
+        if (runTestApp) targetsToRun.put("test-app", null);
+        if (runWar) targetsToRun.put("war", null);
+        System.out.println("targets: " + targets);
+        if (targets != null && targets.length() > 0) {
+            try {
+                JSAP jsap = new JSAP();
+                UnflaggedOption option = new UnflaggedOption("targets");
+                option.setGreedy(true);
+                jsap.registerParameter(option);
+                JSAPResult jsapResult = jsap.parse(targets);
+                String[] strings = jsapResult.getStringArray("targets");
+                for (String requestedTarget : strings) {
+                    List<String> args = new ArrayList<String>();
+                    String[] values = requestedTarget.split(" ");
+                    String command = values[0];
+                    for (int i = 1; i < values.length; i++) {
+                        args.add(values[i]);
+                    }
+                    targetsToRun.put(command, args);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return targetsToRun;
     }
 
     public Descriptor<Builder> getDescriptor() {
