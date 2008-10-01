@@ -28,6 +28,7 @@ public class GrailsBuilder extends Builder {
     private boolean runTestApp;
     private boolean runWar;
     private String grailsWorkDir;
+    private String projectWorkDir;
     private boolean runClean;
     private boolean runUpgrade;
 
@@ -44,6 +45,14 @@ public class GrailsBuilder extends Builder {
 
     public boolean isRunUpgrade() {
         return runUpgrade;
+    }
+
+    public String getProjectWorkDir() {
+        return projectWorkDir;
+    }
+
+    public void setProjectWorkDir(String projectWorkDir) {
+        this.projectWorkDir = projectWorkDir;
     }
 
     public void setRunUpgrade(boolean runUpgrade) {
@@ -142,15 +151,20 @@ public class GrailsBuilder extends Builder {
                     args.add(exec.getPath());
                 }
                 args.addKeyValuePairs("-D", build.getBuildVariables());
+                Map sytemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
-                    Map sytemProperties = new HashMap();
                     sytemProperties.put("grails.work.dir", grailsWorkDir.trim());
+                }
+                if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
+                    sytemProperties.put("project.work.dir", projectWorkDir.trim());
+                }
+                if (sytemProperties.size() > 0) {
                     args.addKeyValuePairs("-D", sytemProperties);
                 }
 
 
                 args.add(target);
-                if("upgrade".equals(target)) {
+                if ("upgrade".equals(target)) {
                     args.add("-force");
                 }
 
