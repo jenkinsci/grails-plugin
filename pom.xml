@@ -4,12 +4,12 @@
   <groupId>g2one</groupId>
   <artifactId>hudson-grails</artifactId>
   <packaging>hpi</packaging>
-  <version>0.5</version>
+  <version>0.6-SNAPSHOT</version>
   <name>hudson-grails</name>
   <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/hudson-grails-0.5</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/hudson-grails-0.5</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/hudson-grails-0.5</url>
+    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.4</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.4</developerConnection>
+    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/grails-0.4</url>
   </scm>
 
   <dependencies>
