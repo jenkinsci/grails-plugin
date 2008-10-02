@@ -7,11 +7,11 @@
   <version>0.4-SNAPSHOT</version>
   <name>hudson-grails</name>
   <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.3</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.3</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/git/tags/grails-0.3</url>
+    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.4</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.4</developerConnection>
+    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/grails-0.4</url>
   </scm>
-  
+
   <dependencies>
     <!--
       Replace 1.153 with any version of Hudson that you'd like to develop against.
