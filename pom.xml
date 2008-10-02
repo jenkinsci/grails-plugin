@@ -7,11 +7,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>g2one</groupId>
-    <artifactId>hudson-grails</artifactId>
+    <artifactId>grails</artifactId>
+    <version>0.7-SNAPSHOT</version>
     <packaging>hpi</packaging>
-    <version>0.6-SNAPSHOT</version>
-    <name>Hudson Grails Plugin</name>
+    <name>Hudson Grails plugin</name>
+
     <dependencies>
         <dependency>
             <groupId>org.jvnet.hudson.main</groupId>
@@ -33,37 +33,35 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>java.net2</id>
+            <url>http://download.java.net/maven/2/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
-                <groupId>org.jvnet.hudson.tools</groupId>
-                <artifactId>maven-hpi-plugin</artifactId>
-                <version>1.20</version>
-                <extensions>true</extensions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>never</forkMode>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-          <id>java.net2</id>
-          <url>http://download.java.net/maven/2/</url>
-          <releases>
-            <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>        
-    </repositories>
-
     <scm>
-        <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.4</connection>
-        <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.4</developerConnection>
-        <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/grails-0.4</url>
+        <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-0.7</connection>
+        <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-0.7</developerConnection>
+        <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/grails-0.7</url>
     </scm>
-
 </project>
