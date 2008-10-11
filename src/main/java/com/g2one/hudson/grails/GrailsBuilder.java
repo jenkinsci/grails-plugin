@@ -28,26 +28,14 @@ public class GrailsBuilder extends Builder {
 
     private final String targets;
     private final String name;
-    private boolean runTestApp;
-    private boolean runWar;
     private String grailsWorkDir;
     private String projectWorkDir;
-    private boolean runClean;
-    private boolean runUpgrade;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, boolean runUpgrade, boolean runClean, boolean runTestApp, boolean runWar, String grailsWorkDir) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir) {
         this.name = name;
-        this.runClean = runClean;
-        this.runUpgrade = runUpgrade;
         this.targets = targets;
-        this.runTestApp = runTestApp;
-        this.runWar = runWar;
         this.grailsWorkDir = grailsWorkDir;
-    }
-
-    public boolean isRunUpgrade() {
-        return runUpgrade;
     }
 
     public String getProjectWorkDir() {
@@ -56,18 +44,6 @@ public class GrailsBuilder extends Builder {
 
     public void setProjectWorkDir(String projectWorkDir) {
         this.projectWorkDir = projectWorkDir;
-    }
-
-    public void setRunUpgrade(boolean runUpgrade) {
-        this.runUpgrade = runUpgrade;
-    }
-
-    public boolean isRunClean() {
-        return runClean;
-    }
-
-    public void setRunClean(boolean runClean) {
-        this.runClean = runClean;
     }
 
     public String getGrailsWorkDir() {
@@ -84,22 +60,6 @@ public class GrailsBuilder extends Builder {
 
     public String getTargets() {
         return targets;
-    }
-
-    public boolean isRunTestApp() {
-        return runTestApp;
-    }
-
-    public void setRunTestApp(boolean runTestApp) {
-        this.runTestApp = runTestApp;
-    }
-
-    public boolean isRunWar() {
-        return runWar;
-    }
-
-    public void setRunWar(boolean runWar) {
-        this.runWar = runWar;
     }
 
     public GrailsInstallation getGrails() {
@@ -183,12 +143,6 @@ public class GrailsBuilder extends Builder {
 
     protected List<String[]> getTargetsToRun() {
         List<String[]> targetsToRun = new ArrayList<String[]>();
-        if (runUpgrade) {
-            targetsToRun.add(new String[]{"upgrade", "-force"});
-        }
-        if (runClean) targetsToRun.add(new String[]{"clean"});
-        if (runTestApp) targetsToRun.add(new String[]{"test-app"});
-        if (runWar) targetsToRun.add(new String[]{"war"});
         if (targets != null && targets.length() > 0) {
             try {
                 JSAP jsap = new JSAP();

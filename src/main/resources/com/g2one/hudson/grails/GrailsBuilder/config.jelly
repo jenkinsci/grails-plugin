@@ -15,22 +15,8 @@
             </j:forEach>
         </select>
     </f:entry>
-    <f:section title="Grails Targets">
-        <f:entry title="Run upgrade">
-            <f:checkbox name="grails.runUpgrade" checked="${instance.runUpgrade}"/>
-        </f:entry>
-        <f:entry title="Run clean">
-            <f:checkbox name="grails.runClean" checked="${instance.runClean}"/>
-        </f:entry>
-        <f:entry title="Run test-app">
-            <f:checkbox name="grails.runTestApp" checked="${instance.runTestApp}"/>
-        </f:entry>
-        <f:entry title="Run war">
-            <f:checkbox name="grails.runWar" checked="${instance.runWar}"/>
-        </f:entry>
-    </f:section>
     <f:entry title="Targets"
-             description="Specify additional target(s) to run separated by spaces (optional)">
+             description="Specify target(s) to run separated by spaces (optional).  To pass arguments to a particular target, surround the target and its arguments with double quotes">
         <f:textbox name="grails.targets" value="${instance.targets}"/>
     </f:entry>
 
