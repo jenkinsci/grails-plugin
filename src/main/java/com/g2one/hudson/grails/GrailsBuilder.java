@@ -32,10 +32,11 @@ public class GrailsBuilder extends Builder {
     private String projectWorkDir;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
+        this.projectWorkDir = projectWorkDir;
     }
 
     public String getProjectWorkDir() {
