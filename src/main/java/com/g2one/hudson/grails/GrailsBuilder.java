@@ -5,6 +5,7 @@ import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.UnflaggedOption;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.FilePath;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
@@ -30,13 +31,23 @@ public class GrailsBuilder extends Builder {
     private final String name;
     private String grailsWorkDir;
     private String projectWorkDir;
+    private String projectBaseDir;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
         this.projectWorkDir = projectWorkDir;
+        this.projectBaseDir = projectBaseDir;
+    }
+
+    public String getProjectBaseDir() {
+        return projectBaseDir;
+    }
+
+    public void setProjectBaseDir(String projectBaseDir) {
+        this.projectBaseDir = projectBaseDir;
     }
 
     public String getProjectWorkDir() {
@@ -127,7 +138,14 @@ public class GrailsBuilder extends Builder {
                 }
 
                 try {
-                    int r = launcher.launch(args.toCommandArray(), env, listener.getLogger(), proj.getModuleRoot()).join();
+                    final FilePath basePath;
+                    FilePath moduleRoot = proj.getModuleRoot();
+                    if(projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
+                        basePath = new FilePath(moduleRoot, projectBaseDir);
+                    } else {
+                        basePath = moduleRoot;
+                    }
+                    int r = launcher.launch(args.toCommandArray(), env, listener.getLogger(), basePath).join();
                     if (r != 0) return false;
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);
