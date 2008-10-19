@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>grails</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.15-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Hudson Grails plugin</name>
 
