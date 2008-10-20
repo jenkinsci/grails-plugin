@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 public class GrailsBuilder extends Builder {
 
     private final String targets;
@@ -205,10 +207,13 @@ public class GrailsBuilder extends Builder {
             return true;
         }
 
-        public Builder newInstance(StaplerRequest req) {
-            return req.bindParameters(GrailsBuilder.class, "grails.");
-        }
+//        public Builder newInstance(StaplerRequest req) {
+//            return req.bindParameters(GrailsBuilder.class, "grails.");
+//        }
 
+        public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+           return req.bindJSON(clazz,formData);
+        }
 
         public GrailsInstallation[] getInstallations() {
             return installations;
