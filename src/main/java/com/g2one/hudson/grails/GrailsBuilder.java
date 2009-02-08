@@ -195,6 +195,7 @@ public class GrailsBuilder extends Builder {
 
         DescriptorImpl() {
             super(GrailsBuilder.class);
+            load();
         }
 
         public String getDisplayName() {
