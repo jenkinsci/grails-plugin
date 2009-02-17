@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 
 public class GrailsBuilder extends Builder {
 
@@ -131,7 +133,7 @@ public class GrailsBuilder extends Builder {
 
                 args.add(target);
                 for (int i = 1; i < targetsAndArgs.length; i++) {
-                    args.add(targetsAndArgs[i]);
+                    args.add(evalTarget(env, targetsAndArgs[i]));
                 }
 
                 if (!launcher.isUnix()) {
@@ -160,6 +162,26 @@ public class GrailsBuilder extends Builder {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Method based on work from Kenji Nakamura
+     * @param env The enviroment vars map
+     * @param target The target with environment vars
+     * @return The target with evaluated environment vars
+     */
+    @SuppressWarnings({"StaticMethodOnlyUsedInOneClass", "TypeMayBeWeakened"})
+    static String evalTarget(Map<String, String> env, String target) {
+        Binding binding = new Binding();
+        binding.setVariable("env", env);
+        binding.setVariable("sys", System.getProperties());
+        GroovyShell shell = new GroovyShell(binding);
+        Object result = shell.evaluate("return \"" + target + "\"");
+        if (result == null) {
+            return target;
+        } else {
+            return result.toString().trim();
+        }
     }
 
     protected List<String[]> getTargetsToRun() {
