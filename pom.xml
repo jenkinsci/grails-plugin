@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>grails</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Hudson Grails plugin</name>
     <url>http://hudson.gotdns.com/wiki/display/HUDSON/Grails+Plugin</url>
@@ -59,10 +59,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/grails-1.0.2</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/grails-1.0.2</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/grails/tags/grails-1.0.2</url>
-  </scm>
 </project>
