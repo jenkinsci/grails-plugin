@@ -11,7 +11,7 @@
     <version>1.0.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Hudson Grails plugin</name>
-    <url>http://hudson.gotdns.com/wiki/display/HUDSON/Grails+Plugin</url>
+    <url>http://wiki.hudson-ci.org/display/HUDSON/Grails+Plugin</url>
 
     <dependencies>
         <dependency>
