@@ -1,3 +1,5 @@
 target/
 work/
-hudson-grails.iws
+*.iws
+*.ipr
+*.iml
