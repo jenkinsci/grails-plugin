@@ -19,7 +19,10 @@
              description="Specify target(s) to run separated by spaces (optional).  To pass arguments to a particular target, surround the target and its arguments with double quotes">
         <f:textbox name="grails.targets" value="${instance.targets}"/>
     </f:entry>
-
+    <f:entry title="server.port"
+             description="Specify a value for the server.port system property (optional)">
+        <f:textbox name="grails.serverPort" value="${instance.serverPort}"/>
+    </f:entry>
     <f:entry title="grails.work.dir"
              description="Specify a value for the grails.work.dir system property (optional)">
         <f:textbox name="grails.grailsWorkDir" value="${instance.grailsWorkDir}"/>

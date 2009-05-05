@@ -3,9 +3,11 @@ package com.g2one.hudson.grails;
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.UnflaggedOption;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.FilePath;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
@@ -13,6 +15,7 @@ import hudson.model.Project;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormFieldValidator;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -25,10 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.json.JSONObject;
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-
 public class GrailsBuilder extends Builder {
 
     private final String targets;
@@ -36,14 +35,16 @@ public class GrailsBuilder extends Builder {
     private String grailsWorkDir;
     private String projectWorkDir;
     private String projectBaseDir;
+    private String serverPort;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
         this.projectWorkDir = projectWorkDir;
         this.projectBaseDir = projectBaseDir;
+        this.serverPort = serverPort;
     }
 
     public String getProjectBaseDir() {
@@ -68,6 +69,14 @@ public class GrailsBuilder extends Builder {
 
     public void setGrailsWorkDir(String grailsWorkDir) {
         this.grailsWorkDir = grailsWorkDir;
+    }
+
+    public String getServerPort() {
+        return serverPort;
+    }
+
+    public void setServerPort(String serverPort) {
+        this.serverPort = serverPort;
     }
 
     public String getName() {
@@ -127,6 +136,9 @@ public class GrailsBuilder extends Builder {
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
                     sytemProperties.put("project.work.dir", projectWorkDir.trim());
                 }
+                if (serverPort != null && !"".equals(serverPort.trim())) {
+                    sytemProperties.put("server.port", serverPort.trim());
+                }
                 if (sytemProperties.size() > 0) {
                     args.addKeyValuePairs("-D", sytemProperties);
                 }
@@ -144,7 +156,7 @@ public class GrailsBuilder extends Builder {
                 try {
                     final FilePath basePath;
                     FilePath moduleRoot = proj.getModuleRoot();
-                    if(projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
+                    if (projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
                         basePath = new FilePath(moduleRoot, projectBaseDir);
                     } else {
                         basePath = moduleRoot;
@@ -166,7 +178,8 @@ public class GrailsBuilder extends Builder {
 
     /**
      * Method based on work from Kenji Nakamura
-     * @param env The enviroment vars map
+     *
+     * @param env    The enviroment vars map
      * @param target The target with environment vars
      * @return The target with evaluated environment vars
      */
@@ -235,7 +248,7 @@ public class GrailsBuilder extends Builder {
 //        }
 
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-           return req.bindJSON(clazz,formData);
+            return req.bindJSON(clazz, formData);
         }
 
         public GrailsInstallation[] getInstallations() {
