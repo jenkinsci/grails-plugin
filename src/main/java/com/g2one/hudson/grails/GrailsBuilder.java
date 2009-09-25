@@ -36,15 +36,25 @@ public class GrailsBuilder extends Builder {
     private String projectWorkDir;
     private String projectBaseDir;
     private String serverPort;
+    private String properties;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
         this.projectWorkDir = projectWorkDir;
         this.projectBaseDir = projectBaseDir;
         this.serverPort = serverPort;
+        this.properties = properties;
+    }
+    
+    public String getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     public String getProjectBaseDir() {
@@ -95,7 +105,7 @@ public class GrailsBuilder extends Builder {
         return null;
     }
 
-    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
+    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         Project proj = build.getProject();
         List<String[]> targetsToRun = getTargetsToRun();
         if (targetsToRun.size() > 0) {
@@ -142,6 +152,7 @@ public class GrailsBuilder extends Builder {
                 if (sytemProperties.size() > 0) {
                     args.addKeyValuePairs("-D", sytemProperties);
                 }
+                args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
 
                 args.add(target);
                 for (int i = 1; i < targetsAndArgs.length; i++) {
