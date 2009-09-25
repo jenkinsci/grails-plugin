@@ -16,7 +16,8 @@
         </select>
     </f:entry>
     <f:entry title="Targets"
-             description="Specify target(s) to run separated by spaces (optional).  To pass arguments to a particular target, surround the target and its arguments with double quotes">
+             help="${rootURL}/plugin/grails/help/projectConfig/targets.html"
+             description="Specify target(s) to run separated by spaces (optional).">
         <f:textbox name="grails.targets" value="${instance.targets}"/>
     </f:entry>
     <f:entry title="server.port"
@@ -32,7 +33,8 @@
         <f:textbox name="grails.projectWorkDir" value="${instance.projectWorkDir}"/>
     </f:entry>
     <f:entry title="Project Base Directory"
-             description="Specify the project base dir (optional).  For most projects this may be left blank.  This value only needs to be specified if the Grails project is not at the root of the workspace.  If the Grails project is not at the root of the workspace, this value should represent a relative path down to the Grails project from the workspace root.">
+             description="Specify a path to the root of the Grails project (optional)"
+             help="${rootURL}/plugin/grails/help/projectConfig/projectBaseDirectory.html">
         <f:textbox name="grails.projectBaseDir" value="${instance.projectBaseDir}"/>
     </f:entry>
     <f:entry title="Properties"
