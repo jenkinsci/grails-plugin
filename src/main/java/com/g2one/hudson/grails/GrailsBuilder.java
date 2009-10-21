@@ -5,22 +5,22 @@ import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.UnflaggedOption;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.Build;
+import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
-import hudson.model.Project;
+import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
-import hudson.util.FormFieldValidator;
+import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,8 +105,8 @@ public class GrailsBuilder extends Builder {
         return null;
     }
 
-    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-        Project proj = build.getProject();
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         List<String[]> targetsToRun = getTargetsToRun();
         if (targetsToRun.size() > 0) {
             String execName;
@@ -118,7 +118,7 @@ public class GrailsBuilder extends Builder {
 
             GrailsInstallation grailsInstallation = getGrails();
 
-            Map<String, String> env = build.getEnvVars();
+            Map<String, String> env = build.getEnvironment(listener);
             if (grailsInstallation != null) {
                 env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
             }
@@ -166,13 +166,13 @@ public class GrailsBuilder extends Builder {
 
                 try {
                     final FilePath basePath;
-                    FilePath moduleRoot = proj.getModuleRoot();
+                    FilePath moduleRoot = build.getModuleRoot();
                     if (projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
                         basePath = new FilePath(moduleRoot, projectBaseDir);
                     } else {
                         basePath = moduleRoot;
                     }
-                    int r = launcher.launch(args.toCommandArray(), env, listener.getLogger(), basePath).join();
+                    int r = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(basePath).join();
                     if (r != 0) return false;
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);
@@ -229,10 +229,7 @@ public class GrailsBuilder extends Builder {
         return targetsToRun;
     }
 
-    public Descriptor<Builder> getDescriptor() {
-        return DESCRIPTOR;
-    }
-
+    @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends Descriptor<Builder> {
@@ -248,7 +245,8 @@ public class GrailsBuilder extends Builder {
             return "Build With Grails";
         }
 
-        public boolean configure(StaplerRequest req) throws FormException {
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             installations = req.bindParametersToList(GrailsInstallation.class, "grails.").toArray(new GrailsInstallation[0]);
             save();
             return true;
@@ -258,6 +256,7 @@ public class GrailsBuilder extends Builder {
 //            return req.bindParameters(GrailsBuilder.class, "grails.");
 //        }
 
+        @Override
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(clazz, formData);
         }
@@ -266,22 +265,17 @@ public class GrailsBuilder extends Builder {
             return installations;
         }
 
-        public void doCheckGrailsHome(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-            new FormFieldValidator(req, rsp, true) {
-                public void check() throws IOException, ServletException {
-                    File f = getFileParameter("value");
-                    if (!f.isDirectory()) {
-                        error(f + " is not a directory");
-                        return;
-                    }
+        public FormValidation doCheckGrailsHome(@QueryParameter String value) {
+            if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) return FormValidation.ok();
+            File f = new File(Util.fixNull(value));
+            if (!f.isDirectory()) {
+                return FormValidation.error(f + " is not a directory");
+            }
 
-                    if (!new File(f, "bin/grails").exists() && !new File(f, "bin/grails.bat").exists()) {
-                        error(f + " doesn't look like a Grails directory");
-                        return;
-                    }
-                    ok();
-                }
-            }.process();
+            if (!new File(f, "bin/grails").exists() && !new File(f, "bin/grails.bat").exists()) {
+                return FormValidation.error(f + " doesn't look like a Grails directory");
+            }
+            return FormValidation.ok();
         }
 
     }
