@@ -37,9 +37,10 @@ public class GrailsBuilder extends Builder {
     private String projectBaseDir;
     private String serverPort;
     private String properties;
+    private Boolean forceUpgrade;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -47,6 +48,15 @@ public class GrailsBuilder extends Builder {
         this.projectBaseDir = projectBaseDir;
         this.serverPort = serverPort;
         this.properties = properties;
+        this.forceUpgrade = forceUpgrade;
+    }
+    
+    public boolean getForceUpgrade() {
+        return forceUpgrade;
+    }
+    
+    public void setForceUpgrade(Boolean b) {
+        forceUpgrade = b;
     }
     
     public String getProperties() {
@@ -122,7 +132,6 @@ public class GrailsBuilder extends Builder {
             if (grailsInstallation != null) {
                 env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
             }
-
             for (String[] targetsAndArgs : targetsToRun) {
 
                 String target = targetsAndArgs[0];
@@ -210,6 +219,9 @@ public class GrailsBuilder extends Builder {
 
     protected List<String[]> getTargetsToRun() {
         List<String[]> targetsToRun = new ArrayList<String[]>();
+        if(forceUpgrade) {
+            targetsToRun.add(new String[]{"upgrade", "--non-interactive"});
+        }
         if (targets != null && targets.length() > 0) {
             try {
                 JSAP jsap = new JSAP();

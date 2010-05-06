@@ -15,6 +15,9 @@
             </j:forEach>
         </select>
     </f:entry>
+    <f:entry title="Force Upgrade" description="Run 'grails upgrade --non-interactive' first">
+        <f:checkbox name="forceUpgrade" checked="${instance.forceUpgrade}"/>
+    </f:entry>
     <f:entry title="Targets"
              help="${rootURL}/plugin/grails/help/projectConfig/targets.html"
              description="Specify target(s) to run separated by spaces (optional).">
