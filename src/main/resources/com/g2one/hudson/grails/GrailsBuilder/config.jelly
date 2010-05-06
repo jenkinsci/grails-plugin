@@ -28,8 +28,8 @@
              description="Specify a value for the grails.work.dir system property (optional)">
         <f:textbox name="grails.grailsWorkDir" value="${instance.grailsWorkDir}"/>
     </f:entry>
-    <f:entry title="project.work.dir"
-             description="Specify a value for the project.work.dir system property (optional)">
+    <f:entry title="grails.project.work.dir"
+             description="Specify a value for the grails.project.work.dir system property (optional)">
         <f:textbox name="grails.projectWorkDir" value="${instance.projectWorkDir}"/>
     </f:entry>
     <f:entry title="Project Base Directory"

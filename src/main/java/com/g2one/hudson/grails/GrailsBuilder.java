@@ -144,7 +144,7 @@ public class GrailsBuilder extends Builder {
                     sytemProperties.put("grails.work.dir", grailsWorkDir.trim());
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
-                    sytemProperties.put("project.work.dir", projectWorkDir.trim());
+                    sytemProperties.put("grails.project.work.dir", projectWorkDir.trim());
                 }
                 if (serverPort != null && !"".equals(serverPort.trim())) {
                     sytemProperties.put("server.port", serverPort.trim());
