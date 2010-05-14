@@ -38,9 +38,10 @@ public class GrailsBuilder extends Builder {
     private String serverPort;
     private String properties;
     private Boolean forceUpgrade;
+    private Boolean nonInteractive;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -49,6 +50,15 @@ public class GrailsBuilder extends Builder {
         this.serverPort = serverPort;
         this.properties = properties;
         this.forceUpgrade = forceUpgrade;
+        this.nonInteractive = nonInteractive;
+    }
+
+    public boolean getNonInteractive() {
+        return nonInteractive;
+    }
+
+    public void setNonInteractive(Boolean b) {
+        nonInteractive = b;
     }
     
     public boolean getForceUpgrade() {
@@ -164,8 +174,16 @@ public class GrailsBuilder extends Builder {
                 args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
 
                 args.add(target);
+                boolean foundNonInteractive = false;
                 for (int i = 1; i < targetsAndArgs.length; i++) {
-                    args.add(evalTarget(env, targetsAndArgs[i]));
+                    String arg = evalTarget(env, targetsAndArgs[i]);
+                    if("--non-interactive".equals(arg)) {
+                        foundNonInteractive = true;
+                    }
+                    args.add(arg);
+                }
+                if(nonInteractive != null && nonInteractive && !foundNonInteractive) {
+                    args.add("--non-interactive");
                 }
 
                 if (!launcher.isUnix()) {
