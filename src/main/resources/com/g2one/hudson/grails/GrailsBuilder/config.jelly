@@ -20,7 +20,7 @@
     </f:entry>
     <f:entry title="Non Interactive (recommended)" description="append --non-interactive to all build targets"
              help="${rootURL}/plugin/grails/help/projectConfig/nonInteractive.html">
-        <f:checkbox name="nonInteractive" checked="${instance.nonInteractive}"/>
+        <f:checkbox name="nonInteractive" checked="${instance.nonInteractive}" default="${true}"/>
     </f:entry>
     <f:entry title="Targets"
              help="${rootURL}/plugin/grails/help/projectConfig/targets.html"
