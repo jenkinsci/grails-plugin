@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>grails</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <packaging>hpi</packaging>
     <name>Jenkins Grails plugin</name>
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Grails+Plugin</url>
@@ -39,4 +39,10 @@
             </plugin>
         </plugins>
     </build>
+
+  <scm>
+    <connection>scm:svn:https://svn.jenkins-ci.org/tags/grails-1.4</connection>
+    <developerConnection>scm:svn:https://svn.jenkins-ci.org/tags/grails-1.4</developerConnection>
+    <url>http://fisheye.jenkins-ci.org/browse/Hudson/tags/grails-1.4</url>
+  </scm>
 </project>
