@@ -2,25 +2,26 @@ package com.g2one.hudson.grails;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import hudson.tools.ToolProperty;
+import hudson.tools.ToolInstallation;
+
 import java.io.File;
+import java.util.List;
 
 
-public final class GrailsInstallation {
-    private final String name;
-    private final String grailsHome;
+public final class GrailsInstallation extends ToolInstallation {
+
+    public GrailsInstallation(String name, String home) {
+        super(name, home);
+    }
 
     @DataBoundConstructor
-    public GrailsInstallation(String name, String home) {
-        this.name = name;
-        this.grailsHome = home;
+    public GrailsInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
+        super(name, home, properties);
     }
 
     public String getGrailsHome() {
-        return grailsHome;
-    }
-
-    public String getName() {
-        return name;
+        return getHome();
     }
 
     public File getExecutable() {
