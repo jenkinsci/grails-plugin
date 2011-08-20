@@ -11,10 +11,8 @@ import hudson.model.BuildListener;
 import hudson.model.Descriptor;
 import hudson.model.AbstractBuild;
 import hudson.model.Computer;
-import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
-import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +24,6 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.martiansoftware.jsap.JSAP;
@@ -290,17 +287,6 @@ public class GrailsBuilder extends Builder {
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            installations = req.bindParametersToList(GrailsInstallation.class, "grails.").toArray(new GrailsInstallation[0]);
-            save();
-            return true;
-        }
-
-//        public Builder newInstance(StaplerRequest req) {
-//            return req.bindParameters(GrailsBuilder.class, "grails.");
-//        }
-
-        @Override
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(clazz, formData);
         }
@@ -312,19 +298,6 @@ public class GrailsBuilder extends Builder {
         public void setInstallations(GrailsInstallation[] installations) {
             this.installations = installations;
             save();
-        }
-
-        public FormValidation doCheckGrailsHome(@QueryParameter String value) {
-            if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) return FormValidation.ok();
-            File f = new File(Util.fixNull(value));
-            if (!f.isDirectory()) {
-                return FormValidation.error(f + " is not a directory");
-            }
-
-            if (!new File(f, "bin/grails").exists() && !new File(f, "bin/grails.bat").exists()) {
-                return FormValidation.error(f + " doesn't look like a Grails directory");
-            }
-            return FormValidation.ok();
         }
 
     }
