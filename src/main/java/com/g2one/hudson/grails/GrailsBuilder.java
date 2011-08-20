@@ -1,25 +1,20 @@
 package com.g2one.hudson.grails;
 
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.UnflaggedOption;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
+import hudson.model.AbstractBuild;
+import hudson.model.Computer;
 import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +22,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.UnflaggedOption;
 
 public class GrailsBuilder extends Builder {
 
@@ -142,9 +147,12 @@ public class GrailsBuilder extends Builder {
                 execName = "grails.bat";
             }
 
-            GrailsInstallation grailsInstallation = getGrails();
+            EnvVars env = build.getEnvironment(listener);
 
-            Map<String, String> env = build.getEnvironment(listener);
+            GrailsInstallation grailsInstallation = getGrails()
+                .forNode(Computer.currentComputer().getNode(), listener)
+                .forEnvironment(env);
+
             if (grailsInstallation != null) {
                 env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
             }
