@@ -2,6 +2,7 @@ package com.g2one.hudson.grails;
 
 import hudson.EnvVars;
 import hudson.model.EnvironmentSpecific;
+import hudson.model.Hudson;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.slaves.NodeSpecific;
@@ -65,6 +66,16 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
         @Override
         public List<? extends ToolInstaller> getDefaultInstallers() {
             return Collections.singletonList(new GrailsInstaller(null));
+        }
+
+        @Override
+        public GrailsInstallation[] getInstallations() {
+            return Hudson.getInstance().getDescriptorByType(GrailsBuilder.DescriptorImpl.class).getInstallations();
+        }
+
+        @Override
+        public void setInstallations(GrailsInstallation... installations) {
+            Hudson.getInstance().getDescriptorByType(GrailsBuilder.DescriptorImpl.class).setInstallations(installations);
         }
     }
 }

@@ -301,6 +301,11 @@ public class GrailsBuilder extends Builder {
             return installations;
         }
 
+        public void setInstallations(GrailsInstallation[] installations) {
+            this.installations = installations;
+            save();
+        }
+
         public FormValidation doCheckGrailsHome(@QueryParameter String value) {
             if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) return FormValidation.ok();
             File f = new File(Util.fixNull(value));
