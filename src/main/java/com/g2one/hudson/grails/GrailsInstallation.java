@@ -1,18 +1,19 @@
 package com.g2one.hudson.grails;
 
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import hudson.EnvVars;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.slaves.NodeSpecific;
+import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolProperty;
 import hudson.tools.ToolInstallation;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public final class GrailsInstallation extends ToolInstallation implements EnvironmentSpecific<GrailsInstallation>, NodeSpecific<GrailsInstallation> {
@@ -50,5 +51,13 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
 
     public GrailsInstallation forEnvironment(EnvVars environment) {
         return new GrailsInstallation(getName(), environment.expand(getHome()), getProperties().toList());
+    }
+
+    public static class DescriptorImpl extends ToolDescriptor<GrailsInstallation> {
+
+        @Override
+        public String getDisplayName() {
+            return "Grails";
+        }
     }
 }
