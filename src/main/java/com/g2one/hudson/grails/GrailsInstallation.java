@@ -22,17 +22,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class GrailsInstallation extends ToolInstallation implements EnvironmentSpecific<GrailsInstallation>, NodeSpecific<GrailsInstallation> {
 
-    public GrailsInstallation(String name, String home) {
-        super(name, home);
-    }
-
     @DataBoundConstructor
     public GrailsInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
         super(name, home, properties);
-    }
-
-    public String getGrailsHome() {
-        return getHome();
     }
 
     public File getExecutable() {
@@ -42,7 +34,7 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
         else
             execName = "grails";
 
-        return new File(getGrailsHome(), "bin/" + execName);
+        return new File(getHome(), "bin/" + execName);
     }
 
     public boolean getExists() {

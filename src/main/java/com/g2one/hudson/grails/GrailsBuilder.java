@@ -154,7 +154,7 @@ public class GrailsBuilder extends Builder {
                 .forEnvironment(env);
 
             if (grailsInstallation != null) {
-                env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
+                env.put("GRAILS_HOME", grailsInstallation.getHome());
             }
             for (String[] targetsAndArgs : targetsToRun) {
 
