@@ -310,5 +310,9 @@ public class GrailsBuilder extends Builder {
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(clazz, formData);
         }
+
+        public GrailsInstallation[] getInstallations() {
+            return Hudson.getInstance().getDescriptorByType(GrailsInstallation.DescriptorImpl.class).getInstallations();
+        }
     }
 }
