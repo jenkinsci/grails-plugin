@@ -1,10 +1,10 @@
 package com.g2one.hudson.grails;
 
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import hudson.Extension;
 import hudson.tools.DownloadFromUrlInstaller;
 import hudson.tools.ToolInstallation;
+
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class GrailsInstaller extends DownloadFromUrlInstaller {
 

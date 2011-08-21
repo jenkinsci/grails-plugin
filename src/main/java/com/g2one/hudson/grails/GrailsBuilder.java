@@ -11,6 +11,7 @@ import hudson.model.BuildListener;
 import hudson.model.Descriptor;
 import hudson.model.AbstractBuild;
 import hudson.model.Computer;
+import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.io.FileUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -120,7 +122,10 @@ public class GrailsBuilder extends Builder {
     }
 
     public GrailsInstallation getGrails() {
-        for (GrailsInstallation i : DESCRIPTOR.getInstallations()) {
+        GrailsInstallation[] installations = Hudson.getInstance()
+            .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
+            .getInstallations();
+        for (GrailsInstallation i : installations) {
             if (name != null && i.getName().equals(name))
                 return i;
         }
@@ -275,11 +280,26 @@ public class GrailsBuilder extends Builder {
 
     public static final class DescriptorImpl extends Descriptor<Builder> {
 
-        private volatile GrailsInstallation[] installations = new GrailsInstallation[0];
-
         DescriptorImpl() {
             super(GrailsBuilder.class);
             load();
+        }
+
+        @Override
+        public synchronized void load() {
+            File rootDir = Hudson.getInstance().getRootDir();
+            File oldConfigFile = new File(rootDir, GrailsBuilder.class.getName() + ".xml");
+            if (oldConfigFile.exists()) {
+                File newConfigFile = new File(rootDir, GrailsInstallation.class.getName() + ".xml");
+                try {
+                    String content = FileUtils.readFileToString(oldConfigFile);
+                    FileUtils.writeStringToFile(newConfigFile, content.replaceAll("<(/?)grailsHome>", "<$1home>"), "UTF-8");
+                    oldConfigFile.delete();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            super.load();
         }
 
         public String getDisplayName() {
@@ -290,15 +310,5 @@ public class GrailsBuilder extends Builder {
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(clazz, formData);
         }
-
-        public GrailsInstallation[] getInstallations() {
-            return installations;
-        }
-
-        public void setInstallations(GrailsInstallation[] installations) {
-            this.installations = installations;
-            save();
-        }
-
     }
 }

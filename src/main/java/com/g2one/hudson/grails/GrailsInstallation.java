@@ -3,7 +3,6 @@ package com.g2one.hudson.grails;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.EnvironmentSpecific;
-import hudson.model.Hudson;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.slaves.NodeSpecific;
@@ -52,6 +51,8 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
     @Extension
     public static class DescriptorImpl extends ToolDescriptor<GrailsInstallation> {
 
+        private volatile GrailsInstallation[] installations = new GrailsInstallation[0];
+
         @Override
         public String getDisplayName() {
             return "Grails";
@@ -64,12 +65,13 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
 
         @Override
         public GrailsInstallation[] getInstallations() {
-            return Hudson.getInstance().getDescriptorByType(GrailsBuilder.DescriptorImpl.class).getInstallations();
+            return installations;
         }
 
         @Override
         public void setInstallations(GrailsInstallation... installations) {
-            Hudson.getInstance().getDescriptorByType(GrailsBuilder.DescriptorImpl.class).setInstallations(installations);
+            this.installations = installations;
+            save();
         }
     }
 }
