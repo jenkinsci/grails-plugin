@@ -53,6 +53,10 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
 
         private volatile GrailsInstallation[] installations = new GrailsInstallation[0];
 
+        public DescriptorImpl() {
+            load();
+        }
+
         @Override
         public String getDisplayName() {
             return "Grails";
