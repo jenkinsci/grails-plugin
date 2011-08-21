@@ -29,4 +29,26 @@ public class PluginTest extends HudsonTestCase {
         assertTrue("New config file should be created.",
             new File(hudson.getRootDir(), GrailsInstallation.class.getName() + ".xml").exists());
     }
+
+    @LocalData
+    public void testWithConfiguration() {
+        GrailsInstallation[] installations = hudson.getDescriptorByType(GrailsInstallation.DescriptorImpl.class).getInstallations();
+        assertEquals(2, installations.length);
+        {
+            GrailsInstallation inst = installations[0];
+            assertEquals("grails-1.3.6", inst.getName());
+            assertEquals("/usr/local/grails/grails-1.3.6", inst.getHome());
+        }
+        {
+            GrailsInstallation inst = installations[1];
+            assertEquals("grails-1.3.7", inst.getName());
+            assertEquals("/usr/local/grails/grails-1.3.7", inst.getHome());
+        }
+    }
+
+    @LocalData
+    public void testWithoutConfiguration() {
+        GrailsInstallation[] installations = hudson.getDescriptorByType(GrailsInstallation.DescriptorImpl.class).getInstallations();
+        assertEquals(0, installations.length);
+    }
 }
