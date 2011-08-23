@@ -1,25 +1,19 @@
 package com.g2one.hudson.grails;
 
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.UnflaggedOption;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
+import hudson.model.AbstractBuild;
+import hudson.model.Computer;
 import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
-import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +21,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.FileUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
+
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.UnflaggedOption;
 
 public class GrailsBuilder extends Builder {
 
@@ -118,7 +122,10 @@ public class GrailsBuilder extends Builder {
     }
 
     public GrailsInstallation getGrails() {
-        for (GrailsInstallation i : DESCRIPTOR.getInstallations()) {
+        GrailsInstallation[] installations = Hudson.getInstance()
+            .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
+            .getInstallations();
+        for (GrailsInstallation i : installations) {
             if (name != null && i.getName().equals(name))
                 return i;
         }
@@ -142,11 +149,14 @@ public class GrailsBuilder extends Builder {
                 execName = "grails.bat";
             }
 
-            GrailsInstallation grailsInstallation = getGrails();
+            EnvVars env = build.getEnvironment(listener);
 
-            Map<String, String> env = build.getEnvironment(listener);
+            GrailsInstallation grailsInstallation = getGrails()
+                .forNode(Computer.currentComputer().getNode(), listener)
+                .forEnvironment(env);
+
             if (grailsInstallation != null) {
-                env.put("GRAILS_HOME", grailsInstallation.getGrailsHome());
+                env.put("GRAILS_HOME", grailsInstallation.getHome());
             }
             for (String[] targetsAndArgs : targetsToRun) {
 
@@ -270,11 +280,26 @@ public class GrailsBuilder extends Builder {
 
     public static final class DescriptorImpl extends Descriptor<Builder> {
 
-        private volatile GrailsInstallation[] installations = new GrailsInstallation[0];
-
         DescriptorImpl() {
             super(GrailsBuilder.class);
             load();
+        }
+
+        @Override
+        public synchronized void load() {
+            File rootDir = Hudson.getInstance().getRootDir();
+            File oldConfigFile = new File(rootDir, GrailsBuilder.class.getName() + ".xml");
+            if (oldConfigFile.exists()) {
+                File newConfigFile = new File(rootDir, GrailsInstallation.class.getName() + ".xml");
+                try {
+                    String content = FileUtils.readFileToString(oldConfigFile);
+                    FileUtils.writeStringToFile(newConfigFile, content.replaceAll("<(/?)grailsHome>", "<$1home>"), "UTF-8");
+                    oldConfigFile.delete();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            super.load();
         }
 
         public String getDisplayName() {
@@ -282,37 +307,8 @@ public class GrailsBuilder extends Builder {
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            installations = req.bindParametersToList(GrailsInstallation.class, "grails.").toArray(new GrailsInstallation[0]);
-            save();
-            return true;
-        }
-
-//        public Builder newInstance(StaplerRequest req) {
-//            return req.bindParameters(GrailsBuilder.class, "grails.");
-//        }
-
-        @Override
         public Builder newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(clazz, formData);
         }
-
-        public GrailsInstallation[] getInstallations() {
-            return installations;
-        }
-
-        public FormValidation doCheckGrailsHome(@QueryParameter String value) {
-            if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) return FormValidation.ok();
-            File f = new File(Util.fixNull(value));
-            if (!f.isDirectory()) {
-                return FormValidation.error(f + " is not a directory");
-            }
-
-            if (!new File(f, "bin/grails").exists() && !new File(f, "bin/grails.bat").exists()) {
-                return FormValidation.error(f + " doesn't look like a Grails directory");
-            }
-            return FormValidation.ok();
-        }
-
     }
 }
