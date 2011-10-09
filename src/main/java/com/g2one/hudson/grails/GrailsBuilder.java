@@ -167,7 +167,7 @@ public class GrailsBuilder extends Builder {
                     args.add(execName);
                 } else {
                     File exec = grailsInstallation.getExecutable();
-                    if (!grailsInstallation.getExists()) {
+                    if (!new FilePath(launcher.getChannel(), grailsInstallation.getExecutable().getPath()).exists()) {
                         listener.fatalError(exec + " doesn't exist");
                         return false;
                     }
