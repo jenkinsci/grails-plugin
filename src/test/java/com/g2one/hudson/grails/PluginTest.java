@@ -1,6 +1,5 @@
 package com.g2one.hudson.grails;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.jvnet.hudson.test.HudsonTestCase;
