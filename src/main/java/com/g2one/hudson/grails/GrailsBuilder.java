@@ -8,9 +8,9 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.model.BuildListener;
-import hudson.model.Descriptor;
 import hudson.model.AbstractBuild;
 import hudson.model.Computer;
+import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
@@ -24,7 +24,6 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.io.FileUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -151,11 +150,11 @@ public class GrailsBuilder extends Builder {
 
             EnvVars env = build.getEnvironment(listener);
 
-            GrailsInstallation grailsInstallation = getGrails()
-                .forNode(Computer.currentComputer().getNode(), listener)
-                .forEnvironment(env);
+            GrailsInstallation grailsInstallation = getGrails();
 
             if (grailsInstallation != null) {
+                grailsInstallation = grailsInstallation.forEnvironment(env)
+                    .forNode(Computer.currentComputer().getNode(), listener);
                 env.put("GRAILS_HOME", grailsInstallation.getHome());
             }
             for (String[] targetsAndArgs : targetsToRun) {
