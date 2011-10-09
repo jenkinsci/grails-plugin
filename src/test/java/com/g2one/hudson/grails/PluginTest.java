@@ -23,11 +23,6 @@ public class PluginTest extends HudsonTestCase {
             assertEquals("grails-1.3.7", inst.getName());
             assertEquals("/usr/local/grails/grails-1.3.7", inst.getHome());
         }
-
-        assertFalse("Old config file should be deleted.",
-            new File(hudson.getRootDir(), GrailsBuilder.class.getName() + ".xml").exists());
-        assertTrue("New config file should be created.",
-            new File(hudson.getRootDir(), GrailsInstallation.class.getName() + ".xml").exists());
     }
 
     @LocalData

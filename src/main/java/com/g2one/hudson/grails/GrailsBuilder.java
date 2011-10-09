@@ -280,35 +280,13 @@ public class GrailsBuilder extends Builder {
 
     public static final class DescriptorImpl extends Descriptor<Builder> {
 
-        DescriptorImpl() {
-            super(GrailsBuilder.class);
-            load();
+        public String getDisplayName() {
+            return "Build With Grails";
         }
 
         @Override
         public synchronized void load() {
-            File rootDir = Hudson.getInstance().getRootDir();
-            File oldConfigFile = new File(rootDir, GrailsBuilder.class.getName() + ".xml");
-            if (oldConfigFile.exists()) {
-                File newConfigFile = new File(rootDir, GrailsInstallation.class.getName() + ".xml");
-                try {
-                    String content = FileUtils.readFileToString(oldConfigFile)
-                        .replaceAll("<(/?)grailsHome>", "<$1home>")
-                        .replaceAll(
-                            "<(/?)com.g2one.hudson.grails.GrailsBuilder_-DescriptorImpl>",
-                            "<$1com.g2one.hudson.grails.GrailsInstallation_-DescriptorImpl>");
-                    FileUtils.writeStringToFile(newConfigFile, content, "UTF-8");
-                    oldConfigFile.delete();
-                    Hudson.getInstance().getDescriptorByType(GrailsInstallation.DescriptorImpl.class).load();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            super.load();
-        }
-
-        public String getDisplayName() {
-            return "Build With Grails";
+            // NOP
         }
 
         @Override
