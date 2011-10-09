@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<com.g2one.hudson.grails.GrailsBuilder_-DescriptorImpl>
+<com.g2one.hudson.grails.GrailsInstallation_-DescriptorImpl>
   <installations>
     <com.g2one.hudson.grails.GrailsInstallation>
       <name>grails-1.3.6</name>
@@ -10,4 +10,4 @@
       <home>/usr/local/grails/grails-1.3.7</home>
     </com.g2one.hudson.grails.GrailsInstallation>
   </installations>
-</com.g2one.hudson.grails.GrailsBuilder_-DescriptorImpl>
+</com.g2one.hudson.grails.GrailsInstallation_-DescriptorImpl>

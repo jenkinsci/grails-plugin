@@ -292,9 +292,14 @@ public class GrailsBuilder extends Builder {
             if (oldConfigFile.exists()) {
                 File newConfigFile = new File(rootDir, GrailsInstallation.class.getName() + ".xml");
                 try {
-                    String content = FileUtils.readFileToString(oldConfigFile);
-                    FileUtils.writeStringToFile(newConfigFile, content.replaceAll("<(/?)grailsHome>", "<$1home>"), "UTF-8");
+                    String content = FileUtils.readFileToString(oldConfigFile)
+                        .replaceAll("<(/?)grailsHome>", "<$1home>")
+                        .replaceAll(
+                            "<(/?)com.g2one.hudson.grails.GrailsBuilder_-DescriptorImpl>",
+                            "<$1com.g2one.hudson.grails.GrailsInstallation_-DescriptorImpl>");
+                    FileUtils.writeStringToFile(newConfigFile, content, "UTF-8");
                     oldConfigFile.delete();
+                    Hudson.getInstance().getDescriptorByType(GrailsInstallation.DescriptorImpl.class).load();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

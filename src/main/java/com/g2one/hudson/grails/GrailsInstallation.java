@@ -58,6 +58,11 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
         }
 
         @Override
+        public synchronized void load() {
+            super.load();
+        }
+
+        @Override
         public String getDisplayName() {
             return "Grails";
         }
