@@ -18,6 +18,10 @@
             <id>jeffg2one</id>
             <name>Jeff Brown</name>
         </developer>
+        <developer>
+            <id>kiy0taka</id>
+            <name>Kiyotaka Oku</name>
+        </developer>
     </developers>
 
     <dependencies>
