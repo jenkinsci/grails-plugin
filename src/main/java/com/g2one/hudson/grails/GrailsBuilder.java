@@ -42,9 +42,10 @@ public class GrailsBuilder extends Builder {
     private String properties;
     private Boolean forceUpgrade;
     private Boolean nonInteractive;
+    private Boolean useWrapper;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -54,6 +55,7 @@ public class GrailsBuilder extends Builder {
         this.properties = properties;
         this.forceUpgrade = forceUpgrade;
         this.nonInteractive = nonInteractive;
+        this.useWrapper = !useWrapper;
     }
 
     public boolean getNonInteractive() {
@@ -120,6 +122,14 @@ public class GrailsBuilder extends Builder {
         return targets;
     }
 
+    public void setUseWrapper(Boolean useWrapper) {
+        this.useWrapper = useWrapper;
+    }
+
+    public Boolean getUseWrapper() {
+        return useWrapper;
+    }
+
     public GrailsInstallation getGrails() {
         GrailsInstallation[] installations = Hudson.getInstance()
             .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
@@ -142,10 +152,11 @@ public class GrailsBuilder extends Builder {
         List<String[]> targetsToRun = getTargetsToRun();
         if (targetsToRun.size() > 0) {
             String execName;
-            if (launcher.isUnix()) {
-                execName = "grails";
+            if (useWrapper) {
+                FilePath wrapper = new FilePath(build.getModuleRoot(), launcher.isUnix() ? "grailsw" : "grailsw.bat");
+                execName = wrapper.getRemote();
             } else {
-                execName = "grails.bat";
+                execName = launcher.isUnix() ? "grails" : "grails.bat";
             }
 
             EnvVars env = build.getEnvironment(listener);
