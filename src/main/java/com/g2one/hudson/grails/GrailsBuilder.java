@@ -163,7 +163,7 @@ public class GrailsBuilder extends Builder {
 
             EnvVars env = build.getEnvironment(listener);
 
-            GrailsInstallation grailsInstallation = getGrails();
+            GrailsInstallation grailsInstallation = useWrapper ? null : getGrails();
 
             if (grailsInstallation != null) {
                 grailsInstallation = grailsInstallation.forEnvironment(env)
