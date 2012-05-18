@@ -144,11 +144,13 @@ public class GrailsBuilder extends Builder {
     private Object readResolve() {
         // Default to false when loading old data to preserve previous behavior.
         if (nonInteractive == null) nonInteractive = Boolean.FALSE;
+        if (useWrapper == null) useWrapper = Boolean.FALSE;
         return this;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+        readResolve();
         List<String[]> targetsToRun = getTargetsToRun();
         if (targetsToRun.size() > 0) {
             String execName;
