@@ -155,7 +155,7 @@ public class GrailsBuilder extends Builder {
         if (targetsToRun.size() > 0) {
             String execName;
             if (useWrapper) {
-                FilePath wrapper = new FilePath(build.getModuleRoot(), launcher.isUnix() ? "grailsw" : "grailsw.bat");
+                FilePath wrapper = new FilePath(getBasePath(build), launcher.isUnix() ? "grailsw" : "grailsw.bat");
                 execName = wrapper.getRemote();
             } else {
                 execName = launcher.isUnix() ? "grails" : "grails.bat";
@@ -220,14 +220,7 @@ public class GrailsBuilder extends Builder {
                 }
 
                 try {
-                    final FilePath basePath;
-                    FilePath moduleRoot = build.getModuleRoot();
-                    if (projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
-                        basePath = new FilePath(moduleRoot, projectBaseDir);
-                    } else {
-                        basePath = moduleRoot;
-                    }
-                    int r = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(basePath).join();
+                    int r = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(getBasePath(build)).join();
                     if (r != 0) return false;
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);
@@ -240,6 +233,17 @@ public class GrailsBuilder extends Builder {
             return false;
         }
         return true;
+    }
+
+    private FilePath getBasePath(AbstractBuild<?, ?> build) {
+        FilePath basePath;
+        FilePath moduleRoot = build.getModuleRoot();
+        if (projectBaseDir != null && !"".equals(projectBaseDir.trim())) {
+            basePath = new FilePath(moduleRoot, projectBaseDir);
+        } else {
+            basePath = moduleRoot;
+        }
+        return basePath;
     }
 
     /**
