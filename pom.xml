@@ -8,7 +8,7 @@
 
     <groupId>org.jvnet.hudson.plugins</groupId>
     <artifactId>grails</artifactId>
-    <version>1.6.3</version>
+    <version>1.7-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Jenkins Grails plugin</name>
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Grails+Plugin</url>
