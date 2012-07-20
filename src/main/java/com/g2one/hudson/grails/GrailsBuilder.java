@@ -43,9 +43,13 @@ public class GrailsBuilder extends Builder {
     private Boolean forceUpgrade;
     private Boolean nonInteractive;
     private Boolean useWrapper;
+    private Boolean plainOutput;
+    private Boolean stackTrace;
+    private Boolean verbose;
+    private Boolean refreshDependencies;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -56,6 +60,10 @@ public class GrailsBuilder extends Builder {
         this.forceUpgrade = forceUpgrade;
         this.nonInteractive = nonInteractive;
         this.useWrapper = !useWrapper;
+        this.plainOutput = plainOutput;
+        this.stackTrace = stackTrace;
+        this.verbose = verbose;
+        this.refreshDependencies = refreshDependencies;
     }
 
     public boolean getNonInteractive() {
@@ -130,6 +138,38 @@ public class GrailsBuilder extends Builder {
         return useWrapper;
     }
 
+    public Boolean getPlainOutput() {
+        return plainOutput;
+    }
+
+    public void setPlainOutput(Boolean plainOutput) {
+        this.plainOutput = plainOutput;
+    }
+
+    public Boolean getStackTrace() {
+        return stackTrace;
+    }
+
+    public void setStackTrace(Boolean stackTrace) {
+        this.stackTrace = stackTrace;
+    }
+
+    public Boolean getVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(Boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public Boolean getRefreshDependencies() {
+        return refreshDependencies;
+    }
+
+    public void setRefreshDependencie(Boolean refreshDependencies) {
+        this.refreshDependencies = refreshDependencies;
+    }
+
     public GrailsInstallation getGrails() {
         GrailsInstallation[] installations = Hudson.getInstance()
             .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
@@ -202,17 +242,11 @@ public class GrailsBuilder extends Builder {
                 args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
 
                 args.add(target);
-                boolean foundNonInteractive = false;
-                for (int i = 1; i < targetsAndArgs.length; i++) {
-                    String arg = evalTarget(env, targetsAndArgs[i]);
-                    if("--non-interactive".equals(arg)) {
-                        foundNonInteractive = true;
-                    }
-                    args.add(arg);
-                }
-                if(nonInteractive != null && nonInteractive && !foundNonInteractive) {
-                    args.add("--non-interactive");
-                }
+                addArgument("--non-interactive", nonInteractive, args, env, targetsAndArgs);
+                addArgument("--plain-output", plainOutput, args, env, targetsAndArgs);
+                addArgument("--stacktrace", stackTrace, args, env, targetsAndArgs);
+                addArgument("--verbose", verbose, args, env, targetsAndArgs);
+                addArgument("--refresh-dependencies", refreshDependencies, args, env, targetsAndArgs);
 
                 if (!launcher.isUnix()) {
                     args.prepend("cmd.exe", "/C");
@@ -233,6 +267,20 @@ public class GrailsBuilder extends Builder {
             return false;
         }
         return true;
+    }
+
+    private void addArgument(String argument, Boolean option, ArgumentListBuilder args, EnvVars env, String[] targetsAndArgs) {
+        boolean foundArgument = false;
+        for (int i = 1; i < targetsAndArgs.length; i++) {
+            String arg = evalTarget(env, targetsAndArgs[i]);
+            if(argument.equals(arg)) {
+                foundArgument = true;
+            }
+            args.add(arg);
+        }
+        if(option != null && option && !foundArgument) {
+            args.add(argument);
+        }
     }
 
     private FilePath getBasePath(AbstractBuild<?, ?> build) {
