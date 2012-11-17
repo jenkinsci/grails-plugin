@@ -226,18 +226,18 @@ public class GrailsBuilder extends Builder {
                     args.add(exec.getPath());
                 }
                 args.addKeyValuePairs("-D", build.getBuildVariables());
-                Map sytemProperties = new HashMap();
+                Map systemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
-                    sytemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
+                    systemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
-                    sytemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
+                    systemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
                 }
                 if (serverPort != null && !"".equals(serverPort.trim())) {
-                    sytemProperties.put("server.port", evalTarget(env, serverPort.trim()));
+                    systemProperties.put("server.port", evalTarget(env, serverPort.trim()));
                 }
-                if (sytemProperties.size() > 0) {
-                    args.addKeyValuePairs("-D", sytemProperties);
+                if (systemProperties.size() > 0) {
+                    args.addKeyValuePairs("-D", systemProperties);
                 }
                 args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
 
