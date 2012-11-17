@@ -1,20 +1,5 @@
 package com.g2one.hudson.grails;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-import hudson.EnvVars;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Util;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
-import hudson.model.Computer;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.tasks.Builder;
-import hudson.util.ArgumentListBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,14 +7,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.UnflaggedOption;
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Util;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.model.Computer;
+import hudson.model.Descriptor;
+import hudson.model.Hudson;
+import hudson.tasks.Builder;
+import hudson.util.ArgumentListBuilder;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 public class GrailsBuilder extends Builder {
 
@@ -269,17 +267,19 @@ public class GrailsBuilder extends Builder {
         return true;
     }
 
-    private void addArgument(String argument, Boolean option, ArgumentListBuilder args, EnvVars env, String[] targetsAndArgs) {
+    protected void addArgument(String option, Boolean optionEnabled, ArgumentListBuilder args, EnvVars env, String[] targetsAndArgs) {
         boolean foundArgument = false;
         for (int i = 1; i < targetsAndArgs.length; i++) {
             String arg = evalTarget(env, targetsAndArgs[i]);
-            if(argument.equals(arg)) {
+            if(option.equals(arg)) {
                 foundArgument = true;
             }
-            args.add(arg);
+            if (!args.toList().contains(arg)) {
+                args.add(arg);
+            }
         }
-        if(option != null && option && !foundArgument) {
-            args.add(argument);
+        if(optionEnabled != null && optionEnabled && !foundArgument) {
+            args.add(option);
         }
     }
 
