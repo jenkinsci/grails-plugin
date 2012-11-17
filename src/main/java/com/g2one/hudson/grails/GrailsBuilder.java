@@ -166,7 +166,7 @@ public class GrailsBuilder extends Builder {
         return refreshDependencies;
     }
 
-    public void setRefreshDependencie(Boolean refreshDependencies) {
+    public void setRefreshDependencies(Boolean refreshDependencies) {
         this.refreshDependencies = refreshDependencies;
     }
 
