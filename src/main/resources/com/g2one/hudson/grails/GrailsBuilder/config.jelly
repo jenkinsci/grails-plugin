@@ -24,6 +24,20 @@
              help="${rootURL}/plugin/grails/help/projectConfig/nonInteractive.html">
         <f:checkbox name="nonInteractive" checked="${instance.nonInteractive}" default="${true}"/>
     </f:entry>
+
+   <f:entry title="Plain Output (recommended)" description="append --plain-output to all build targets">
+        <f:checkbox name="plainOutput" checked="${instance.plainOutput}" default="${true}"/>
+    </f:entry>
+   <f:entry title="Stacktrace" description="append --stacktrace to all build targets">
+        <f:checkbox name="stackTrace" checked="${instance.stackTrace}"/>
+    </f:entry>
+   <f:entry title="Verbose" description="append --verbose to all build targets">
+        <f:checkbox name="verbose" checked="${instance.verbose}"/>
+    </f:entry>
+   <f:entry title="Refresh Dependencies" description="append --refresh-dependencies to all build targets">
+        <f:checkbox name="refreshDependencies" checked="${instance.refreshDependencies}"/>
+    </f:entry>
+
     <f:entry title="Targets"
              help="${rootURL}/plugin/grails/help/projectConfig/targets.html"
              description="Specify target(s) to run separated by spaces (optional).">
