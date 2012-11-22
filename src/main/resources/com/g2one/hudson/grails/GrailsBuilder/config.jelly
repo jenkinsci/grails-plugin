@@ -34,6 +34,7 @@
         <f:textbox name="grails.serverPort" value="${instance.serverPort}"/>
     </f:entry>
     <f:entry title="grails.work.dir"
+             help="${rootURL}/plugin/grails/help/projectConfig/grailsWorkDir.html"
              description="Specify a value for the grails.work.dir system property (optional)">
         <f:textbox name="grails.grailsWorkDir" value="${instance.grailsWorkDir}"/>
     </f:entry>

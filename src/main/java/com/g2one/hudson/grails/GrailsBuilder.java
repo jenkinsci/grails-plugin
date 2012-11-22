@@ -328,12 +328,15 @@ public class GrailsBuilder extends Builder {
 class WrappedListener implements BuildListener {
 	private final BuildListener wrapped;
 	private PrintStream wrappedLogger;
-	private final MaxLengthList<byte[]> consoleCache;
+	private final MaxLengthList<String> consoleCache;
 
 //> CONSTRUCTORS
 	private WrappedListener(BuildListener listener) {
 		this.wrapped = listener;
-		this.consoleCache = new MaxLengthList(20);
+		// TODO might be good to let users set this - depending on what
+		// they are running in their build, e.g. Cobertura or exceptions
+		// in e.g. TestPhasesEnd, they may need more cacheing done.
+		this.consoleCache = new MaxLengthList(200);
 	}
 
 //> PASS THRUS TO WRAPPED LISTENER
@@ -357,9 +360,8 @@ class WrappedListener implements BuildListener {
 	}
 
 	boolean isBuildFailingDueToFailingTests() {
-		for(byte[] b : consoleCache) {
-			// TODO may need to explicitly set encoding here
-			if(new String(b).toLowerCase().contains("tests failed")) {
+		for(String consoleLine : consoleCache) {
+			if(consoleLine.toLowerCase().contains("tests failed")) {
 				return true;
 			}
 		}
@@ -377,10 +379,10 @@ class WrappedListener implements BuildListener {
 
 class CachedPrintStream extends PrintStream {
 	private final PrintStream wrapped;
-	private final List<byte[]> cache;
+	private final List<String> cache;
 	private final BuildListener listener;
 
-	CachedPrintStream(PrintStream wrapped, List<byte[]> cache, BuildListener listener) {
+	CachedPrintStream(PrintStream wrapped, List<String> cache, BuildListener listener) {
 		super(wrapped);
 		this.wrapped = wrapped;
 		this.cache = cache;
@@ -390,7 +392,8 @@ class CachedPrintStream extends PrintStream {
 	// This appears to be the only method called on the Listener's logger.
 	// If others are called in future, we might need to decorate them as well.
 	public void write(byte[] buff, int off, int len) {
-		cache.add(buff);
+		// TODO may need to explicitly set encoding here
+		cache.add(new String(buff, off, len));
 		super.write(buff, off, len);
 	}
 }
