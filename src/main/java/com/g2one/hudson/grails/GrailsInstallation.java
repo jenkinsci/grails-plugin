@@ -34,20 +34,6 @@ public final class GrailsInstallation extends ToolInstallation implements Enviro
         super(name, home, properties);
     }
 
-    public File getExecutable() {
-        String execName;
-        if (File.separatorChar == '\\')
-            execName = "grails.bat";
-        else
-            execName = "grails";
-
-        return new File(getHome(), "bin/" + execName);
-    }
-
-    public boolean getExists() {
-        return getExecutable().exists();
-    }
-
     public GrailsInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
         return new GrailsInstallation(getName(), translateFor(node, log), getProperties().toList());
     }
