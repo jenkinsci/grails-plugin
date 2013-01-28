@@ -1,6 +1,5 @@
 package com.g2one.hudson.grails;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,12 +215,12 @@ public class GrailsBuilder extends Builder {
                 if (grailsInstallation == null) {
                     args.add(execName);
                 } else {
-                    File exec = grailsInstallation.getExecutable();
-                    if (!new FilePath(launcher.getChannel(), grailsInstallation.getExecutable().getPath()).exists()) {
+                    FilePath exec = new FilePath(launcher.getChannel(), grailsInstallation.getHome()).child("bin").child(execName);
+                    if (!exec.exists()) {
                         listener.fatalError(exec + " doesn't exist");
                         return false;
                     }
-                    args.add(exec.getPath());
+                    args.add(exec.getRemote());
                 }
                 args.addKeyValuePairs("-D", build.getBuildVariables());
                 Map systemProperties = new HashMap();
