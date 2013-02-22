@@ -31,6 +31,9 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class GrailsBuilder extends Builder {
 
+    private static final String JAVA_OPTS = "JAVA_OPTS";
+    private static final String JENKINS_7702_TRIGGER = "-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager";
+
     private final String targets;
     private final String name;
     private String grailsWorkDir;
@@ -208,6 +211,13 @@ public class GrailsBuilder extends Builder {
                     .forNode(Computer.currentComputer().getNode(), listener);
                 env.put("GRAILS_HOME", grailsInstallation.getHome());
             }
+
+            String jopts = env.get(JAVA_OPTS);
+            if (jopts != null && jopts.contains(JENKINS_7702_TRIGGER)) {
+                listener.getLogger().println("[JENKINS-7702] sanitizing $" + JAVA_OPTS);
+                env.put(JAVA_OPTS, jopts.replace(JENKINS_7702_TRIGGER, "")); // leading/trailing spaces should be harmless
+            }
+
             for (String[] targetsAndArgs : targetsToRun) {
 
                 String target = targetsAndArgs[0];
