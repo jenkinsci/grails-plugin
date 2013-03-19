@@ -1,15 +1,26 @@
 package com.g2one.hudson.grails;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.UnflaggedOption;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.console.ConsoleNote;
-import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.Cause;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
@@ -29,13 +40,8 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.UnflaggedOption;
 
 public class GrailsBuilder extends Builder {
 
@@ -49,9 +55,13 @@ public class GrailsBuilder extends Builder {
     private Boolean forceUpgrade;
     private Boolean nonInteractive;
     private Boolean useWrapper;
+    private Boolean plainOutput;
+    private Boolean stackTrace;
+    private Boolean verbose;
+    private Boolean refreshDependencies;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -62,6 +72,10 @@ public class GrailsBuilder extends Builder {
         this.forceUpgrade = forceUpgrade;
         this.nonInteractive = nonInteractive;
         this.useWrapper = !useWrapper;
+        this.plainOutput = plainOutput;
+        this.stackTrace = stackTrace;
+        this.verbose = verbose;
+        this.refreshDependencies = refreshDependencies;
     }
 
     public boolean getNonInteractive() {
@@ -136,6 +150,38 @@ public class GrailsBuilder extends Builder {
         return useWrapper;
     }
 
+    public Boolean getPlainOutput() {
+        return plainOutput;
+    }
+
+    public void setPlainOutput(Boolean plainOutput) {
+        this.plainOutput = plainOutput;
+    }
+
+    public Boolean getStackTrace() {
+        return stackTrace;
+    }
+
+    public void setStackTrace(Boolean stackTrace) {
+        this.stackTrace = stackTrace;
+    }
+
+    public Boolean getVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(Boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public Boolean getRefreshDependencies() {
+        return refreshDependencies;
+    }
+
+    public void setRefreshDependencies(Boolean refreshDependencies) {
+        this.refreshDependencies = refreshDependencies;
+    }
+
     public GrailsInstallation getGrails() {
         GrailsInstallation[] installations = Hudson.getInstance()
             .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
@@ -192,35 +238,29 @@ public class GrailsBuilder extends Builder {
                     args.add(exec.getPath());
                 }
                 args.addKeyValuePairs("-D", build.getBuildVariables());
-                Map sytemProperties = new HashMap();
+                Map systemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
-                    sytemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
+                    systemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
                 } else {
-                    sytemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
+                    systemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
-                    sytemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
+                    systemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
                 }
                 if (serverPort != null && !"".equals(serverPort.trim())) {
-                    sytemProperties.put("server.port", evalTarget(env, serverPort.trim()));
+                    systemProperties.put("server.port", evalTarget(env, serverPort.trim()));
                 }
-                if (sytemProperties.size() > 0) {
-                    args.addKeyValuePairs("-D", sytemProperties);
+                if (systemProperties.size() > 0) {
+                    args.addKeyValuePairs("-D", systemProperties);
                 }
                 args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
 
                 args.add(target);
-                boolean foundNonInteractive = false;
-                for (int i = 1; i < targetsAndArgs.length; i++) {
-                    String arg = evalTarget(env, targetsAndArgs[i]);
-                    if("--non-interactive".equals(arg)) {
-                        foundNonInteractive = true;
-                    }
-                    args.add(arg);
-                }
-                if(nonInteractive != null && nonInteractive && !foundNonInteractive) {
-                    args.add("--non-interactive");
-                }
+                addArgument("--non-interactive", nonInteractive, args, env, targetsAndArgs);
+                addArgument("--plain-output", plainOutput, args, env, targetsAndArgs);
+                addArgument("--stacktrace", stackTrace, args, env, targetsAndArgs);
+                addArgument("--verbose", verbose, args, env, targetsAndArgs);
+                addArgument("--refresh-dependencies", refreshDependencies, args, env, targetsAndArgs);
 
                 if (!launcher.isUnix()) {
                     args.prepend("cmd.exe", "/C");
@@ -244,6 +284,22 @@ public class GrailsBuilder extends Builder {
             return false;
         }
         return true;
+    }
+
+    protected void addArgument(String option, Boolean optionEnabled, ArgumentListBuilder args, EnvVars env, String[] targetsAndArgs) {
+        boolean foundArgument = false;
+        for (int i = 1; i < targetsAndArgs.length; i++) {
+            String arg = evalTarget(env, targetsAndArgs[i]);
+            if(option.equals(arg)) {
+                foundArgument = true;
+            }
+            if (!args.toList().contains(arg)) {
+                args.add(arg);
+            }
+        }
+        if(optionEnabled != null && optionEnabled && !foundArgument) {
+            args.add(option);
+        }
     }
 
     private FilePath getBasePath(AbstractBuild<?, ?> build) {
