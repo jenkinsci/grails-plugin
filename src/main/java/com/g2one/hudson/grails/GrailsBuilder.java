@@ -195,6 +195,8 @@ public class GrailsBuilder extends Builder {
                 Map sytemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
                     sytemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
+                } else {
+                    sytemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
                     sytemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
