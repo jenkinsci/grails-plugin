@@ -191,7 +191,7 @@ public class GrailsBuilder extends Builder {
         readResolve();
         EnvVars env = build.getEnvironment(listener);
         List<String[]> targetsToRun = getTargetsToRun(env);
-        
+     
         if (targetsToRun.size() > 0) {
             String execName;
             if (useWrapper) {
@@ -323,7 +323,10 @@ public class GrailsBuilder extends Builder {
         }
         if (targets != null && targets.length() > 0) {
             try {
-            	String targetsEval = evalTarget(env,this.targets);
+            	String targetsEval =this.targets; 
+            	if(env!=null){
+            		targetsEval = evalTarget(env,this.targets);
+            	}
                 JSAP jsap = new JSAP();
                 UnflaggedOption option = new UnflaggedOption("targets");
                 option.setGreedy(true);
