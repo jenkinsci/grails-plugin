@@ -189,7 +189,9 @@ public class GrailsBuilder extends Builder {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         readResolve();
-        List<String[]> targetsToRun = getTargetsToRun();
+        EnvVars env = build.getEnvironment(listener);
+        List<String[]> targetsToRun = getTargetsToRun(env);
+        
         if (targetsToRun.size() > 0) {
             String execName;
             if (useWrapper) {
@@ -199,7 +201,6 @@ public class GrailsBuilder extends Builder {
                 execName = launcher.isUnix() ? "grails" : "grails.bat";
             }
 
-            EnvVars env = build.getEnvironment(listener);
 
             GrailsInstallation grailsInstallation = useWrapper ? null : getGrails();
 
@@ -315,18 +316,19 @@ public class GrailsBuilder extends Builder {
         }
     }
 
-    protected List<String[]> getTargetsToRun() {
+    protected List<String[]> getTargetsToRun(EnvVars env) {
         List<String[]> targetsToRun = new ArrayList<String[]>();
         if(forceUpgrade) {
             targetsToRun.add(new String[]{"upgrade", "--non-interactive"});
         }
         if (targets != null && targets.length() > 0) {
             try {
+            	String targetsEval = evalTarget(env,this.targets);
                 JSAP jsap = new JSAP();
                 UnflaggedOption option = new UnflaggedOption("targets");
                 option.setGreedy(true);
                 jsap.registerParameter(option);
-                JSAPResult jsapResult = jsap.parse(this.targets);
+                JSAPResult jsapResult = jsap.parse(targetsEval);
                 String[] targets = jsapResult.getStringArray("targets");
                 for (String targetAndArgs : targets) {
                     String[] pieces = targetAndArgs.split(" ");
