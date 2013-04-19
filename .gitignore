@@ -4,3 +4,7 @@ work/
 *.ipr
 *.iml
 .idea
+
+# git merge files
+*.orig
+
