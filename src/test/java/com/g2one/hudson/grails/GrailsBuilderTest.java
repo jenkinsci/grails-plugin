@@ -20,18 +20,18 @@ public class GrailsBuilderTest {
     @Test
     public void getTargetsToRun() {
 
-        assertThat(newBuilderWithTargetsAndForceUpgrade(null, false).getTargetsToRun(),
+        assertThat(newBuilderWithTargetsAndForceUpgrade(null, false).getTargetsToRun(null),
                 is(arrayOfStrings()));
 
-        assertThat(newBuilderWithTargetsAndForceUpgrade(null, true).getTargetsToRun(),
+        assertThat(newBuilderWithTargetsAndForceUpgrade(null, true).getTargetsToRun(null),
                 is(arrayOfStrings(new String[] {"upgrade", "--non-interactive"})));
 
-        assertThat(newBuilderWithTargetsAndForceUpgrade("test-app", true).getTargetsToRun(),
+        assertThat(newBuilderWithTargetsAndForceUpgrade("test-app", true).getTargetsToRun(null),
                 is(arrayOfStrings(
                         new String[] {"upgrade", "--non-interactive"},
                         new String[] {"test-app"})));
 
-        assertThat(newBuilderWithTargetsAndForceUpgrade("\"test-app -clean\"", true).getTargetsToRun(),
+        assertThat(newBuilderWithTargetsAndForceUpgrade("\"test-app -clean\"", true).getTargetsToRun(null),
                 is(arrayOfStrings(
                         new String[] {"upgrade", "--non-interactive"},
                         new String[] {"test-app", "-clean"})));
