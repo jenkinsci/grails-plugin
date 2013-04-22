@@ -68,6 +68,9 @@ public class GrailsBuilderTest {
         assertThat(newBuilderWithTargets("${env['FOO']}").getTargetsToRun(env),
                 is(arrayOfStrings(new String[] {"foo"})));
 
+        assertThat(newBuilderWithTargets("${FOO}").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"foo"})));
+
         assertThat(newBuilderWithTargets("\"test-app -clean\" \"war target/${env['FOO']}.war\"").getTargetsToRun(env),
                 is(arrayOfStrings(
                         new String[] {"test-app", "-clean"},

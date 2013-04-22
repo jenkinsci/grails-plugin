@@ -24,6 +24,7 @@ import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
+import hudson.util.VariableResolver;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -313,6 +314,7 @@ public class GrailsBuilder extends Builder {
      */
     @SuppressWarnings({"StaticMethodOnlyUsedInOneClass", "TypeMayBeWeakened"})
     static String evalTarget(Map<String, String> env, String target) {
+        target = Util.replaceMacro(target, new VariableResolver.ByMap<String>(env));
         Binding binding = new Binding();
         binding.setVariable("env", env);
         binding.setVariable("sys", System.getProperties());
