@@ -18,7 +18,69 @@ import org.junit.internal.matchers.TypeSafeMatcher;
 public class GrailsBuilderTest {
 
     @Test
-    public void getTargetsToRun() {
+    public void getTargetsToRun_without_env() {
+
+        EnvVars env = new EnvVars();
+
+        assertThat(newBuilderWithTargets(null).getTargetsToRun(env),
+                is(arrayOfStrings()));
+
+        assertThat(newBuilderWithTargets("test-app").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\"").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app", "-clean"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" war").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app", "-clean"},
+                                  new String[] {"war"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" \"war target/app.war\"").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app", "-clean"},
+                                  new String[] {"war", "target/app.war"})));
+    }
+
+    @Test
+    public void getTargetsToRun_with_env() {
+
+        EnvVars env = new EnvVars();
+        env.put("FOO", "foo");
+
+        assertThat(newBuilderWithTargets(null).getTargetsToRun(env),
+                is(arrayOfStrings()));
+
+        assertThat(newBuilderWithTargets("test-app").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\"").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"test-app", "-clean"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" war").getTargetsToRun(env),
+                is(arrayOfStrings(
+                        new String[] {"test-app", "-clean"},
+                        new String[] {"war"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" \"war target/app.war\"").getTargetsToRun(env),
+                is(arrayOfStrings(
+                        new String[] {"test-app", "-clean"},
+                        new String[] {"war", "target/app.war"})));
+
+        assertThat(newBuilderWithTargets("${env['FOO']}").getTargetsToRun(env),
+                is(arrayOfStrings(new String[] {"foo"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" \"war target/${env['FOO']}.war\"").getTargetsToRun(env),
+                is(arrayOfStrings(
+                        new String[] {"test-app", "-clean"},
+                        new String[] {"war", "target/foo.war"})));
+
+        assertThat(newBuilderWithTargets("\"test-app -clean\" \"war target/${env['BAR']}.war\"").getTargetsToRun(env),
+                is(arrayOfStrings(
+                        new String[] {"test-app", "-clean"},
+                        new String[] {"war", "target/null.war"})));
+    }
+
+    @Test
+    public void getTargetsToRun_forceUpgrade() {
 
         assertThat(newBuilderWithTargetsAndForceUpgrade(null, false).getTargetsToRun(null),
                 is(arrayOfStrings()));
@@ -81,6 +143,10 @@ public class GrailsBuilderTest {
 
     private GrailsBuilder newBuilder() {
         return new GrailsBuilder(null, null, null, null, null, null, null, false, false, false, false, false, false, false);
+    }
+
+    private GrailsBuilder newBuilderWithTargets(String targets) {
+        return new GrailsBuilder(targets, null, null, null, null, null, null, false, false, false, false, false, false, false);
     }
 
     private GrailsBuilder newBuilderWithTargetsAndForceUpgrade(String targets, Boolean forceUpgrade) {

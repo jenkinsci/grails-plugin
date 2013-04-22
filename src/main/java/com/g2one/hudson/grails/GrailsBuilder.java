@@ -332,10 +332,7 @@ public class GrailsBuilder extends Builder {
         }
         if (targets != null && targets.length() > 0) {
             try {
-            	String targetsEval =this.targets; 
-            	if(env!=null){
-            		targetsEval = evalTarget(env,this.targets);
-            	}
+                String targetsEval = this.targets;
                 JSAP jsap = new JSAP();
                 UnflaggedOption option = new UnflaggedOption("targets");
                 option.setGreedy(true);
@@ -343,7 +340,7 @@ public class GrailsBuilder extends Builder {
                 JSAPResult jsapResult = jsap.parse(targetsEval);
                 String[] targets = jsapResult.getStringArray("targets");
                 for (String targetAndArgs : targets) {
-                    String[] pieces = targetAndArgs.split(" ");
+                    String[] pieces = evalTarget(env, targetAndArgs).split(" ");
                     targetsToRun.add(pieces);
                 }
             } catch (Exception e) {
