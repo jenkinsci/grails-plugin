@@ -92,7 +92,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
 
         FreeStyleProject job = createFreeStyleProject();
         File customWorkspace = createTmpDir();
-        FilePath mockPath = new FilePath(new File(getClass().getResource("/mock/wrapper").toURI()));
+        FilePath mockPath = new FilePath(new File("src/test/resources/mock/wrapper"));
         for (FilePath wrapper : mockPath.list()) {
             wrapper.copyToWithPermission(new FilePath(customWorkspace).child(wrapper.getName()));
         }
@@ -181,10 +181,6 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     private GrailsInstallation mockGrails(String name) {
-        try {
-            return new GrailsInstallation(name, new File(getClass().getResource("/mock/" + name).toURI()).getAbsolutePath(), null);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        return new GrailsInstallation(name, new File("src/test/resources/mock", name).getAbsolutePath(), null);
     }
 }
