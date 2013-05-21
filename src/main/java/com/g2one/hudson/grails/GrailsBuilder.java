@@ -1,10 +1,7 @@
 package com.g2one.hudson.grails;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -17,14 +14,27 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.console.ConsoleNote;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import hudson.model.Cause;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
+import hudson.model.Result;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VariableResolver;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -238,6 +248,8 @@ public class GrailsBuilder extends Builder {
                 Map systemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
                     systemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
+                } else {
+                    systemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
                     systemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
@@ -263,8 +275,11 @@ public class GrailsBuilder extends Builder {
                 }
 
                 try {
-                    int r = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(getBasePath(build)).join();
-                    if (r != 0) return false;
+                    WrappedListener wrappedListener = WrappedListener.create(listener);
+                    int r = launcher.launch().cmds(args).envs(env).stdout(wrappedListener).pwd(getBasePath(build)).join();
+                    if (r != 0 && !wrappedListener.isBuildFailingDueToFailingTests()) {
+                        return false;
+                    }
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);
                     e.printStackTrace(listener.fatalError("command execution failed"));
@@ -376,3 +391,92 @@ public class GrailsBuilder extends Builder {
         }
     }
 }
+
+class WrappedListener implements BuildListener {
+	private final BuildListener wrapped;
+	private PrintStream wrappedLogger;
+	private final MaxLengthList<String> consoleCache;
+
+//> CONSTRUCTORS
+	private WrappedListener(BuildListener listener) {
+		this.wrapped = listener;
+		// TODO might be good to let users set this - depending on what
+		// they are running in their build, e.g. Cobertura or exceptions
+		// in e.g. TestPhasesEnd, they may need more cacheing done.
+		this.consoleCache = new MaxLengthList(200);
+	}
+
+//> PASS THRUS TO WRAPPED LISTENER
+	public void started(List<Cause> causes) { wrapped.started(causes); }
+	public void finished(Result result) { wrapped.finished(result); }
+	public void annotate(ConsoleNote ann) throws IOException { wrapped.annotate(ann); }
+	public PrintWriter error(String msg) { return wrapped.error(msg); }
+	public PrintWriter error(String format, Object... args) { return wrapped.error(format, args); }
+	public PrintWriter fatalError(String msg) { return wrapped.fatalError(msg); }
+	public PrintWriter fatalError(String format, Object... args) { return wrapped.fatalError(format, args); }
+	public void hyperlink(String url, String text) throws IOException { wrapped.hyperlink(url, text); }
+
+//> CUSTOM METHODS AND OVERRIDES
+	public synchronized PrintStream getLogger() {
+		if(wrappedLogger == null) {
+			log("getLogger() :: wrapping logger...");
+			PrintStream realLogger = wrapped.getLogger();
+			wrappedLogger = new CachedPrintStream(realLogger, consoleCache, this);
+		}
+		return wrappedLogger;
+	}
+
+	boolean isBuildFailingDueToFailingTests() {
+		for(String consoleLine : consoleCache) {
+			if(consoleLine.toLowerCase().contains("tests failed")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static WrappedListener create(BuildListener listener) {
+		return new WrappedListener(listener);
+	}
+
+	private void log(String message) {
+		error("WrappedListener :: LOG :: " + message);
+	}
+}
+
+class CachedPrintStream extends PrintStream {
+	private final PrintStream wrapped;
+	private final List<String> cache;
+	private final BuildListener listener;
+
+	CachedPrintStream(PrintStream wrapped, List<String> cache, BuildListener listener) {
+		super(wrapped);
+		this.wrapped = wrapped;
+		this.cache = cache;
+		this.listener = listener;
+	}
+
+	// This appears to be the only method called on the Listener's logger.
+	// If others are called in future, we might need to decorate them as well.
+	public void write(byte[] buff, int off, int len) {
+		// TODO may need to explicitly set encoding here
+		cache.add(new String(buff, off, len));
+		super.write(buff, off, len);
+	}
+}
+
+class MaxLengthList<E> extends LinkedList<E> {
+	private final int lengthLimit;
+
+	MaxLengthList(int lengthLimit) {
+		this.lengthLimit = lengthLimit;
+	}
+
+	public synchronized boolean add(E e) {
+		while(size() >= lengthLimit) {
+			removeFirst();
+		}
+		return super.add(e);
+	}
+}
+

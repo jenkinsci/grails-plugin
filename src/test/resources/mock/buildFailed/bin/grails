@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "[MOCK_GRAILS] $@"
+exit 1
