@@ -275,9 +275,9 @@ public class GrailsBuilder extends Builder {
                 }
 
                 try {
-                    WrappedListener wrappedListener = WrappedListener.create(listener);
-                    int r = launcher.launch().cmds(args).envs(env).stdout(wrappedListener).pwd(getBasePath(build)).join();
-                    if (r != 0 && !wrappedListener.isBuildFailingDueToFailingTests()) {
+                    GrailsConsoleAnnotator gca = new GrailsConsoleAnnotator(listener.getLogger(), build.getCharset());
+                    int r = launcher.launch().cmds(args).envs(env).stdout(gca).pwd(getBasePath(build)).join();
+                    if (r != 0 && !gca.isBuildFailingDueToFailingTests()) {
                         return false;
                     }
                 } catch (IOException e) {
@@ -391,92 +391,3 @@ public class GrailsBuilder extends Builder {
         }
     }
 }
-
-class WrappedListener implements BuildListener {
-	private final BuildListener wrapped;
-	private PrintStream wrappedLogger;
-	private final MaxLengthList<String> consoleCache;
-
-//> CONSTRUCTORS
-	private WrappedListener(BuildListener listener) {
-		this.wrapped = listener;
-		// TODO might be good to let users set this - depending on what
-		// they are running in their build, e.g. Cobertura or exceptions
-		// in e.g. TestPhasesEnd, they may need more cacheing done.
-		this.consoleCache = new MaxLengthList(200);
-	}
-
-//> PASS THRUS TO WRAPPED LISTENER
-	public void started(List<Cause> causes) { wrapped.started(causes); }
-	public void finished(Result result) { wrapped.finished(result); }
-	public void annotate(ConsoleNote ann) throws IOException { wrapped.annotate(ann); }
-	public PrintWriter error(String msg) { return wrapped.error(msg); }
-	public PrintWriter error(String format, Object... args) { return wrapped.error(format, args); }
-	public PrintWriter fatalError(String msg) { return wrapped.fatalError(msg); }
-	public PrintWriter fatalError(String format, Object... args) { return wrapped.fatalError(format, args); }
-	public void hyperlink(String url, String text) throws IOException { wrapped.hyperlink(url, text); }
-
-//> CUSTOM METHODS AND OVERRIDES
-	public synchronized PrintStream getLogger() {
-		if(wrappedLogger == null) {
-			log("getLogger() :: wrapping logger...");
-			PrintStream realLogger = wrapped.getLogger();
-			wrappedLogger = new CachedPrintStream(realLogger, consoleCache, this);
-		}
-		return wrappedLogger;
-	}
-
-	boolean isBuildFailingDueToFailingTests() {
-		for(String consoleLine : consoleCache) {
-			if(consoleLine.toLowerCase().contains("tests failed")) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	static WrappedListener create(BuildListener listener) {
-		return new WrappedListener(listener);
-	}
-
-	private void log(String message) {
-		error("WrappedListener :: LOG :: " + message);
-	}
-}
-
-class CachedPrintStream extends PrintStream {
-	private final PrintStream wrapped;
-	private final List<String> cache;
-	private final BuildListener listener;
-
-	CachedPrintStream(PrintStream wrapped, List<String> cache, BuildListener listener) {
-		super(wrapped);
-		this.wrapped = wrapped;
-		this.cache = cache;
-		this.listener = listener;
-	}
-
-	// This appears to be the only method called on the Listener's logger.
-	// If others are called in future, we might need to decorate them as well.
-	public void write(byte[] buff, int off, int len) {
-		// TODO may need to explicitly set encoding here
-		cache.add(new String(buff, off, len));
-		super.write(buff, off, len);
-	}
-}
-
-class MaxLengthList<E> extends LinkedList<E> {
-	private final int lengthLimit;
-
-	MaxLengthList(int lengthLimit) {
-		this.lengthLimit = lengthLimit;
-	}
-
-	public synchronized boolean add(E e) {
-		while(size() >= lengthLimit) {
-			removeFirst();
-		}
-		return super.add(e);
-	}
-}
-
