@@ -173,7 +173,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
         job.getBuildersList().add(builder);
         FreeStyleBuild build = job.scheduleBuild2(0).get();
 
-        assertEquals(Result.SUCCESS, build.getResult());
+        assertEquals(Result.UNSTABLE, build.getResult());
     }
 
     private List<String> run(GrailsBuilder builder) {

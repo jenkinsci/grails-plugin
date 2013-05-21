@@ -277,8 +277,12 @@ public class GrailsBuilder extends Builder {
                 try {
                     GrailsConsoleAnnotator gca = new GrailsConsoleAnnotator(listener.getLogger(), build.getCharset());
                     int r = launcher.launch().cmds(args).envs(env).stdout(gca).pwd(getBasePath(build)).join();
-                    if (r != 0 && !gca.isBuildFailingDueToFailingTests()) {
-                        return false;
+                    if (r != 0) {
+                        if (gca.isBuildFailingDueToFailingTests()) {
+                            build.setResult(Result.UNSTABLE);
+                        } else {
+                            return false;
+                        }
                     }
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);

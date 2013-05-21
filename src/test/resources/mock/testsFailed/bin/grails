@@ -3,3 +3,4 @@
 echo "[MOCK_GRAILS] $@"
 echo "| Tests FAILED  - view reports in /tmp/app/target/test-reports"
 
+exit 1
