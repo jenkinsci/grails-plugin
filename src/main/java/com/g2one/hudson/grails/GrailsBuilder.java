@@ -274,8 +274,9 @@ public class GrailsBuilder extends Builder {
                     args.add("&&", "exit", "%%ERRORLEVEL%%");
                 }
 
+                GrailsConsoleAnnotator gca = new GrailsConsoleAnnotator(listener.getLogger(), build.getCharset());
+                new GrailsTaskNote(target).encodeTo(listener.getLogger());
                 try {
-                    GrailsConsoleAnnotator gca = new GrailsConsoleAnnotator(listener.getLogger(), build.getCharset());
                     int r = launcher.launch().cmds(args).envs(env).stdout(gca).pwd(getBasePath(build)).join();
                     if (r != 0) {
                         if (gca.isBuildFailingDueToFailingTests()) {
@@ -288,6 +289,8 @@ public class GrailsBuilder extends Builder {
                     Util.displayIOException(e, listener);
                     e.printStackTrace(listener.fatalError("command execution failed"));
                     return false;
+                } finally {
+                    gca.forceEol();
                 }
             }
         } else {
