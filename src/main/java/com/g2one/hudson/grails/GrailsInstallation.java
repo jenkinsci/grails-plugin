@@ -3,17 +3,14 @@ package com.g2one.hudson.grails;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.XmlFile;
-import hudson.model.EnvironmentSpecific;
-import hudson.model.TaskListener;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Node;
+import hudson.model.*;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
-import hudson.tools.ToolInstallation;
 import hudson.util.XStream2;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public final class GrailsInstallation extends ToolInstallation implements EnvironmentSpecific<GrailsInstallation>, NodeSpecific<GrailsInstallation> {

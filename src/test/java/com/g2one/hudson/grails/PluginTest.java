@@ -1,10 +1,10 @@
 package com.g2one.hudson.grails;
 
-import java.io.IOException;
-
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.recipes.LocalData;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
 
 public class PluginTest extends HudsonTestCase {
 

@@ -1,18 +1,18 @@
 package com.g2one.hudson.grails;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import hudson.EnvVars;
 import hudson.util.ArgumentListBuilder;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 
 public class GrailsBuilderTest {

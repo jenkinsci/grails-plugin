@@ -1,37 +1,25 @@
 package com.g2one.hudson.grails;
 
-import java.io.IOException;
-
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.UnflaggedOption;
-import hudson.EnvVars;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
-import hudson.model.Computer;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Result;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import hudson.*;
+import hudson.model.*;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VariableResolver;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GrailsBuilder extends Builder {
 

@@ -1,5 +1,11 @@
 package com.g2one.hudson.grails;
 
+import hudson.FilePath;
+import hudson.model.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jvnet.hudson.test.HudsonTestCase;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -7,13 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import hudson.FilePath;
-import hudson.model.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jvnet.hudson.test.HudsonTestCase;
 
 /**
  * @author Kiyotaka Oku
