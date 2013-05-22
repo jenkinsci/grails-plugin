@@ -67,6 +67,33 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
                 "-DdefaultTarget=test-app " + TMP_WORK_DIR +" test-app");
     }
 
+    public void testExpandEnvironmentsInProperties() {
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=FOO"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dfoo=FOO test-app");
+        }
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=FOO\nbar=BAR"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dbar=BAR -Dfoo=FOO test-app");
+        }
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=${env['BUILD_NUMBER']}"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dfoo=1 test-app");
+        }
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=FOO\nbar=${env['BUILD_NUMBER']}"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dbar=1 -Dfoo=FOO test-app");
+        }
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=${BUILD_NUMBER}"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dfoo=1 test-app");
+        }
+        {
+            List<String> logs = run(newBuilderWithProperties("foo=FOO\nbar=${BUILD_NUMBER}"));
+            assertEcho(logs, TMP_WORK_DIR +  " -Dbar=1 -Dfoo=FOO test-app");
+        }
+    }
+
     public void testForceUpgrade() {
         {
             GrailsBuilder builder = newBuilderWithTargets("test-app");
@@ -233,6 +260,10 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
 
     private GrailsBuilder newBuilderWithTargets(String targets) {
         return new GrailsBuilder(targets, "echo", "/tmp", null, null, null, null, false, false, true, false, false, false, false);
+    }
+
+    private GrailsBuilder newBuilderWithProperties(String properties) {
+        return new GrailsBuilder("test-app", "echo", "/tmp", null, null, null, properties, false, false, true, false, false, false, false);
     }
 
     private Map<String, String> env(String key, String value) {

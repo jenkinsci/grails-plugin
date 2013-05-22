@@ -1,7 +1,6 @@
 package com.g2one.hudson.grails;
 
 import java.io.IOException;
-import java.util.*;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -14,10 +13,8 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.console.ConsoleNote;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.model.Cause;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
@@ -26,16 +23,13 @@ import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VariableResolver;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -247,20 +241,20 @@ public class GrailsBuilder extends Builder {
                 args.addKeyValuePairs("-D", build.getBuildVariables());
                 Map systemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
-                    systemProperties.put("grails.work.dir", evalTarget(env, grailsWorkDir.trim()));
+                    systemProperties.put("grails.work.dir", eval(env, grailsWorkDir));
                 } else {
                     systemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
-                    systemProperties.put("grails.project.work.dir", evalTarget(env, projectWorkDir.trim()));
+                    systemProperties.put("grails.project.work.dir", eval(env, projectWorkDir));
                 }
                 if (serverPort != null && !"".equals(serverPort.trim())) {
-                    systemProperties.put("server.port", evalTarget(env, serverPort.trim()));
+                    systemProperties.put("server.port", eval(env, serverPort));
                 }
                 if (systemProperties.size() > 0) {
                     args.addKeyValuePairs("-D", systemProperties);
                 }
-                args.addKeyValuePairsFromPropertyString("-D", properties, build.getBuildVariableResolver());
+                args.addKeyValuePairsFromPropertyString("-D", eval(env, properties), build.getBuildVariableResolver());
 
                 args.add(target);
                 addArgument("--non-interactive", nonInteractive, args, env, targetsAndArgs);
@@ -303,7 +297,7 @@ public class GrailsBuilder extends Builder {
     protected void addArgument(String option, Boolean optionEnabled, ArgumentListBuilder args, EnvVars env, String[] targetsAndArgs) {
         boolean foundArgument = false;
         for (int i = 1; i < targetsAndArgs.length; i++) {
-            String arg = evalTarget(env, targetsAndArgs[i]);
+            String arg = eval(env, targetsAndArgs[i]);
             if(option.equals(arg)) {
                 foundArgument = true;
             }
@@ -335,18 +329,27 @@ public class GrailsBuilder extends Builder {
      * @return The target with evaluated environment vars
      */
     @SuppressWarnings({"StaticMethodOnlyUsedInOneClass", "TypeMayBeWeakened"})
-    static String evalTarget(Map<String, String> env, String target) {
-        target = Util.replaceMacro(target, new VariableResolver.ByMap<String>(env));
-        Binding binding = new Binding();
-        binding.setVariable("env", env);
-        binding.setVariable("sys", System.getProperties());
-        GroovyShell shell = new GroovyShell(binding);
-        Object result = shell.evaluate("return \"" + target + "\"");
-        if (result == null) {
-            return target;
+    static String eval(Map<String, String> env, String target) {
+        List<String> result = new ArrayList<String>();
+        if (target == null) {
+            return null;
         } else {
-            return result.toString().trim();
+            target = target.trim();
         }
+        for (String s : target.split("\r?\n")) {
+            s = Util.replaceMacro(s, new VariableResolver.ByMap<String>(env));
+            Binding binding = new Binding();
+            binding.setVariable("env", env);
+            binding.setVariable("sys", System.getProperties());
+            GroovyShell shell = new GroovyShell(binding);
+            Object value = shell.evaluate("return \"" + s + "\"");
+            if (value == null) {
+                result.add(s);
+            } else {
+                result.add(value.toString().trim());
+            }
+        }
+        return StringUtils.join(result, "\n");
     }
 
     protected List<String[]> getTargetsToRun(EnvVars env) {
@@ -364,7 +367,7 @@ public class GrailsBuilder extends Builder {
                 JSAPResult jsapResult = jsap.parse(targetsEval);
                 String[] targets = jsapResult.getStringArray("targets");
                 for (String targetAndArgs : targets) {
-                    String[] pieces = evalTarget(env, targetAndArgs).split(" ");
+                    String[] pieces = eval(env, targetAndArgs).split(" ");
                     targetsToRun.add(pieces);
                 }
             } catch (Exception e) {
