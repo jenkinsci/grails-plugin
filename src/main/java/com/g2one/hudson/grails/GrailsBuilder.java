@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,6 +204,10 @@ public class GrailsBuilder extends Builder {
                 grailsInstallation = grailsInstallation.forEnvironment(env)
                     .forNode(Computer.currentComputer().getNode(), listener);
                 env.put("GRAILS_HOME", grailsInstallation.getHome());
+
+                String path = env.get("PATH");
+                path = path == null ? "" : path + (launcher.isUnix() ? ":" : ";");
+                env.put("PATH", path + grailsInstallation.getHome() + (launcher.isUnix() ? "/bin" : "\\bin"));
             }
 
             String jopts = env.get(JAVA_OPTS);
@@ -252,8 +257,7 @@ public class GrailsBuilder extends Builder {
                 addArgument("--refresh-dependencies", refreshDependencies, args, env, targetsAndArgs);
 
                 if (!launcher.isUnix()) {
-                    args.prepend("cmd.exe", "/C");
-                    args.add("&&", "exit", "%%ERRORLEVEL%%");
+                    args = args.toWindowsCommand();
                 }
 
                 GrailsConsoleAnnotator gca = new GrailsConsoleAnnotator(listener.getLogger(), build.getCharset());
