@@ -236,7 +236,7 @@ public class GrailsBuilder extends Builder {
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
                     systemProperties.put("grails.work.dir", eval(env, grailsWorkDir));
                 } else {
-                    systemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "/target");
+                    systemProperties.put("grails.work.dir", build.getWorkspace().toURI().getPath() + "target");
                 }
                 if (projectWorkDir != null && !"".equals(projectWorkDir.trim())) {
                     systemProperties.put("grails.project.work.dir", eval(env, projectWorkDir));
