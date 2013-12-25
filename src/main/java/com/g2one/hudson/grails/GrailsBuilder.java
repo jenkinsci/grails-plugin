@@ -67,19 +67,19 @@ public class GrailsBuilder extends Builder {
     public void setNonInteractive(Boolean b) {
         nonInteractive = b;
     }
-    
+
     public boolean getForceUpgrade() {
         return forceUpgrade;
     }
-    
+
     public void setForceUpgrade(Boolean b) {
         forceUpgrade = b;
     }
-    
+
     public String getProperties() {
         return properties;
     }
-    
+
     public void setProperties(String properties) {
         this.properties = properties;
     }
@@ -187,7 +187,7 @@ public class GrailsBuilder extends Builder {
         readResolve();
         EnvVars env = build.getEnvironment(listener);
         List<String[]> targetsToRun = getTargetsToRun(env);
-     
+
         if (targetsToRun.size() > 0) {
             String execName;
             if (useWrapper) {
@@ -264,12 +264,11 @@ public class GrailsBuilder extends Builder {
                 new GrailsTaskNote(target).encodeTo(listener.getLogger());
                 try {
                     int r = launcher.launch().cmds(args).envs(env).stdout(gca).pwd(getBasePath(build)).join();
-                    if (r != 0) {
-                        if (gca.isBuildFailingDueToFailingTests()) {
-                            build.setResult(Result.UNSTABLE);
-                        } else {
-                            return false;
-                        }
+
+                    if (gca.isBuildFailingDueToFailingTests()) {
+                        build.setResult(Result.UNSTABLE);
+                    } else if (r != 0) {
+                        return false;
                     }
                 } catch (IOException e) {
                     Util.displayIOException(e, listener);
@@ -393,3 +392,4 @@ public class GrailsBuilder extends Builder {
         }
     }
 }
+
