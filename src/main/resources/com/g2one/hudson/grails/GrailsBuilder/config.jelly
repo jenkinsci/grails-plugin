@@ -6,16 +6,22 @@
       See global.jelly for a general discussion about jelly script.
     -->
 
-    <f:optionalBlock name="grails.useWrapper" checked="${instance.useWrapper}" title="Use Grails Wrapper" inline="true" negative="true">
-      <f:entry title="Grails Installation" description="Select a Grails installation to use">
-          <select class="setting-input" name="grails.name">
-              <option>(Default)</option>
-              <j:forEach var="inst" items="${descriptor.installations}">
-                  <f:option selected="${inst.name==instance.grails.name}">${inst.name}</f:option>
-              </j:forEach>
-          </select>
-      </f:entry>
-    </f:optionalBlock>
+    <f:radioBlock inline="true" name="useWrapper" checked="${!instance.useWrapper}" value="false" title="${%Invoke Grails}">
+        <f:entry title="Grails Installation" description="Select a Grails installation to use">
+            <select class="setting-input" name="grails.name">
+                <option>(Default)</option>
+                <j:forEach var="inst" items="${descriptor.installations}">
+                    <f:option selected="${inst.name==instance.grails.name}">${inst.name}</f:option>
+                </j:forEach>
+            </select>
+        </f:entry>
+    </f:radioBlock>
+
+    <f:radioBlock inline="true" name="useWrapper" checked="${instance.useWrapper}" value="true" title="${%Use Grails Wrapper}">
+        <f:entry title="${%Make grailsw executable}" field="makeExecutable">
+            <f:checkbox />
+        </f:entry>
+    </f:radioBlock>
 
     <f:entry title="Force Upgrade" description="Run 'grails upgrade --non-interactive' first">
         <f:checkbox name="forceUpgrade" checked="${instance.forceUpgrade}"/>
