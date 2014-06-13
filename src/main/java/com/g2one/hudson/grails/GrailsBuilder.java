@@ -41,10 +41,11 @@ public class GrailsBuilder extends Builder {
     private Boolean stackTrace;
     private Boolean verbose;
     private Boolean refreshDependencies;
+    private Boolean makeExecutable;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies) {
-        this.name = name;
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies, Boolean makeExecutable) {
+          this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
         this.projectWorkDir = projectWorkDir;
@@ -53,11 +54,12 @@ public class GrailsBuilder extends Builder {
         this.properties = properties;
         this.forceUpgrade = forceUpgrade;
         this.nonInteractive = nonInteractive;
-        this.useWrapper = !useWrapper;
+        this.useWrapper = useWrapper;
         this.plainOutput = plainOutput;
         this.stackTrace = stackTrace;
         this.verbose = verbose;
         this.refreshDependencies = refreshDependencies;
+        this.makeExecutable = makeExecutable;
     }
 
     public boolean getNonInteractive() {
@@ -164,6 +166,14 @@ public class GrailsBuilder extends Builder {
         this.refreshDependencies = refreshDependencies;
     }
 
+    public Boolean getMakeExecutable(){
+        return this.makeExecutable;
+    }
+
+    public void setMakeExecutable(Boolean makeExecutable){
+        this.makeExecutable = makeExecutable;
+    }
+
     public GrailsInstallation getGrails() {
         GrailsInstallation[] installations = Hudson.getInstance()
             .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
@@ -193,6 +203,11 @@ public class GrailsBuilder extends Builder {
             if (useWrapper) {
                 FilePath wrapper = new FilePath(getBasePath(build), launcher.isUnix() ? "grailsw" : "grailsw.bat");
                 execName = wrapper.getRemote();
+
+                if (makeExecutable) {
+                    wrapper.chmod(0744);
+                }
+
             } else {
                 execName = launcher.isUnix() ? "grails" : "grails.bat";
             }

@@ -166,7 +166,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     public void testWithGrailsWorkDir() throws Exception {
-        GrailsBuilder builder = new GrailsBuilder("test-app", "echo", "/tmp", null, null, null, null, false, false, true, false, false, false, false);
+        GrailsBuilder builder = new GrailsBuilder("test-app", "echo", "/tmp", null, null, null, null, false, false, false, false, false, false, false, false);
         FreeStyleProject job = job = createFreeStyleProject();
         job.getBuildersList().add(builder);
         FreeStyleBuild build = job.scheduleBuild2(0).get();
@@ -175,7 +175,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     public void testWithoutGrailsWorkDir() throws Exception {
-        GrailsBuilder builder = new GrailsBuilder("test-app", "echo", null, null, null, null, null, false, false, true, false, false, false, false);
+        GrailsBuilder builder = new GrailsBuilder("test-app", "echo", null, null, null, null, null, false, false, false, false, false, false, false, false);
         FreeStyleProject job = job = createFreeStyleProject();
         job.getBuildersList().add(builder);
         FreeStyleBuild build = job.scheduleBuild2(0).get();
@@ -185,7 +185,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     public void testBuildFailed() throws Exception {
-        GrailsBuilder builder = new GrailsBuilder("test-app", "buildFailed", null, null, null, null, null, false, false, true, false, false, false, false);
+        GrailsBuilder builder = new GrailsBuilder("test-app", "buildFailed", null, null, null, null, null, false, false, false, false, false, false, false, false);
         FreeStyleProject job = job = createFreeStyleProject();
         job.getBuildersList().add(builder);
         FreeStyleBuild build = job.scheduleBuild2(0).get();
@@ -194,7 +194,7 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     public void testTestsFailed() throws Exception {
-        GrailsBuilder builder = new GrailsBuilder("test-app", "testsFailed", null, null, null, null, null, false, false, true, false, false, false, false);
+        GrailsBuilder builder = new GrailsBuilder("test-app", "testsFailed", null, null, null, null, null, false, false, false, false, false, false, false, false);
         FreeStyleProject job = job = createFreeStyleProject();
         job.getBuildersList().add(builder);
         FreeStyleBuild build = job.scheduleBuild2(0).get();
@@ -258,11 +258,11 @@ public class GrailsBuilderIntegrationTest extends HudsonTestCase {
     }
 
     private GrailsBuilder newBuilderWithTargets(String targets) {
-        return new GrailsBuilder(targets, "echo", "/tmp", null, null, null, null, false, false, true, false, false, false, false);
+        return new GrailsBuilder(targets, "echo", "/tmp", null, null, null, null, false, false, false, false, false, false, false, false);
     }
 
     private GrailsBuilder newBuilderWithProperties(String properties) {
-        return new GrailsBuilder("test-app", "echo", "/tmp", null, null, null, properties, false, false, true, false, false, false, false);
+        return new GrailsBuilder("test-app", "echo", "/tmp", null, null, null, properties, false, false, false, false, false, false, false, false);
     }
 
     private Map<String, String> env(String key, String value) {
