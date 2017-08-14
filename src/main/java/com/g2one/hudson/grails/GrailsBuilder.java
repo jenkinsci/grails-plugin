@@ -41,9 +41,10 @@ public class GrailsBuilder extends Builder {
     private Boolean stackTrace;
     private Boolean verbose;
     private Boolean refreshDependencies;
+    private Boolean suppressBuildEnvVars;
 
     @DataBoundConstructor
-    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies) {
+    public GrailsBuilder(String targets, String name, String grailsWorkDir, String projectWorkDir, String projectBaseDir, String serverPort, String properties, Boolean forceUpgrade, Boolean nonInteractive, Boolean useWrapper, Boolean plainOutput, Boolean stackTrace, Boolean verbose, Boolean refreshDependencies, Boolean suppressBuildEnvVars) {
         this.name = name;
         this.targets = targets;
         this.grailsWorkDir = grailsWorkDir;
@@ -58,6 +59,7 @@ public class GrailsBuilder extends Builder {
         this.stackTrace = stackTrace;
         this.verbose = verbose;
         this.refreshDependencies = refreshDependencies;
+        this.suppressBuildEnvVars = suppressBuildEnvVars;
     }
 
     public boolean getNonInteractive() {
@@ -164,6 +166,14 @@ public class GrailsBuilder extends Builder {
         this.refreshDependencies = refreshDependencies;
     }
 
+    public Boolean getSuppressBuildEnvVars() {
+        return suppressBuildEnvVars;
+    }
+
+    public void setSuppressBuildEnvVars(Boolean suppressBuildEnvVars) {
+        this.suppressBuildEnvVars = suppressBuildEnvVars;
+    }
+
     public GrailsInstallation getGrails() {
         GrailsInstallation[] installations = Hudson.getInstance()
             .getDescriptorByType(GrailsInstallation.DescriptorImpl.class)
@@ -231,7 +241,9 @@ public class GrailsBuilder extends Builder {
                     }
                     args.add(exec.getRemote());
                 }
-                args.addKeyValuePairs("-D", build.getBuildVariables());
+                if (!suppressBuildEnvVars) {
+                  args.addKeyValuePairs("-D", build.getBuildVariables());
+                }
                 Map systemProperties = new HashMap();
                 if (grailsWorkDir != null && !"".equals(grailsWorkDir.trim())) {
                     systemProperties.put("grails.work.dir", eval(env, grailsWorkDir));

@@ -37,6 +37,9 @@
    <f:entry title="Refresh Dependencies" description="append --refresh-dependencies to all build targets">
         <f:checkbox name="refreshDependencies" checked="${instance.refreshDependencies}"/>
     </f:entry>
+   <f:entry title="Suppress -D Build Env Vars" description="Suppress -D environment variables passed in to job ">
+        <f:checkbox name="suppressBuildEnvVars" checked="${instance.suppressBuildEnvVars}"/>
+    </f:entry>
 
     <f:entry title="Targets"
              help="${rootURL}/plugin/grails/help/projectConfig/targets.html"
